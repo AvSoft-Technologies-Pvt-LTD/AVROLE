@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IoCallOutline, IoChatbubblesOutline } from "react-icons/io5";
-import { RiContactsBook2Fill, RiHospitalLine, RiStethoscopeFill, RiFlaskFill, RiHomeOfficeLine, RiArrowDropDownFill, RiServiceFill } from "react-icons/ri";
+import { RiContactsBook2Fill, RiHospitalLine,RiBriefcaseFill ,RiCustomerService2Fill , RiStethoscopeFill, RiFlaskFill, RiHomeOfficeLine, RiArrowDropDownFill, RiServiceFill } from "react-icons/ri";
 import { TbInfoHexagon } from "react-icons/tb";
 import { useNavigate } from 'react-router-dom';
 
@@ -59,7 +59,7 @@ function Navbar() {
         </li>
 
         <li className='relative group cursor-pointer flex items-center gap-1 hover:text-[#F4C430] transition'>
-          <RiServiceFill size={20}  />
+          <RiBriefcaseFill  size={20}  />
           Services <RiArrowDropDownFill />
 
           <ul className='absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 bg-white border border-gray-200 py-2 px-3 mt-2 rounded-xl shadow-xl w-52 z-20 top-14 transition-all duration-200'>

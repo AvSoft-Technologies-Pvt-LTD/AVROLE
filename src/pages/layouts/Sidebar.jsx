@@ -11,6 +11,7 @@ import {
   RiSettings3Fill,
   RiLogoutBoxRFill,
   RiArrowLeftSLine,
+  RiBriefcaseFill ,
   RiArrowRightSLine,
 } from "react-icons/ri";
 
@@ -35,7 +36,7 @@ const Sidebar = () => {
       { icon: RiShoppingBagFill, label: "Online Shopping", path: "/dashboard/shopping" },
       { icon: RiShieldCheckFill, label: "Insurance", path: "/dashboard/insurance" },
       {
-        icon: RiFileListFill,
+        icon: RiBriefcaseFill  ,
         label: "Medical Services",
         submenuKey: "medicalServices",
         submenu: [
@@ -44,8 +45,8 @@ const Sidebar = () => {
           { label: "Nearby Pharmacy", path: "/dashboard/pharmacy" },
         ],
       },
-      { icon: RiSettings3Fill , label: "Billing", path: "/dashboard/Billing" },
-      { icon: RiShieldCheckFill, label: "Notifications", path: "/dashboard/notifications" },
+      { icon: RiFileListFill , label: "Billing", path: "/dashboard/Billing" },
+      // { icon: RiShieldCheckFill, label: "Notifications", path: "/dashboard/notifications" },
       { icon: RiSettings3Fill, label: "Settings", path: "/dashboard/settings" },
     ],
     doctor: [

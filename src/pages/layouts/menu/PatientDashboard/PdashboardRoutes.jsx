@@ -70,6 +70,8 @@ import Insurance from "./Insurance";
 import Billing from "./Billing";
 import PatientNotifications from './Notifications';
 import PaymentForm from './PaymentForm';
+import LabTestBooking from './LabTestBooking'
+import Emergency from "./Emergency";
 const PdashboardRoutes = () => {
   return (
     <Routes>
@@ -86,9 +88,9 @@ const PdashboardRoutes = () => {
       <Route path="/payment" element={<PaymentForm />} />
       <Route path="shopping" element={<h1>Online Shopping</h1>} />
       <Route path="emergency" element={<h1>Emergency Info</h1>} />
-      <Route path="lab-tests" element={<h1>Lab Tests Booking</h1>} />
-      <Route path="ambulance" element={<h1>Ambulance Booking</h1>} />
-      <Route path="pharmacy" element={<h1>Nearby Pharmacy</h1>} />
+      <Route path="lab-tests" element={<LabTestBooking/>} />
+      <Route path="ambulance" element={<Emergency/>} />
+      {/* <Route path="pharmacy" element={<PharmacyFinder/>} /> */}
 
       {/* Fallback route */}
       <Route path="*" element={<h1>404 - Page Not Found</h1>} />

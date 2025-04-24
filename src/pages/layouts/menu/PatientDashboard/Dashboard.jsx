@@ -159,43 +159,43 @@ export default function App() {
             <div className="flex flex-wrap items-center gap-6 text-white-700 text-lg">
               {/* Name */}
               <div className="flex flex-col">
-                <span className="text-sm text-[#F4C430]">Name</span>
-                <span className="text-sm text-white-600">
+                <span className="text-lg text-[#F4C430]">Name</span>
+                <span className="text-lg text-white-600">
                   {user?.firstName || "Guest"} {user?.lastName || ""}
                 </span>
               </div>
 
               {/* Divider */}
-              <span className="hidden sm:block h-8 w-px bg-gray-300"></span>
+              <span className="hidden lg:block h-8 w-px bg-gray-300"></span>
 
               {/* DOB */}
               <div className="flex flex-col">
-                <span className="text-sm text-[#F4C430]">Date of Birth</span>
-                <span className="text-sm text-white-600">{user?.dob || "N/A"}</span>
+                <span className="text-lg text-[#F4C430]">Date of Birth</span>
+                <span className="text-lg text-white-600">{user?.dob || "N/A"}</span>
               </div>
 
-              <span className="hidden sm:block h-8 w-px bg-gray-300"></span>
+              <span className="hidden lg:block h-8 w-px bg-gray-300"></span>
 
               {/* Gender */}
               <div className="flex flex-col">
-                <span className="text-sm text-[#F4C430]">Gender</span>
-                <span className="text-sm text-white-600">{user?.gender || "N/A"}</span>
+                <span className="text-lg text-[#F4C430]">Gender</span>
+                <span className="text-lg text-white-600">{user?.gender || "N/A"}</span>
               </div>
 
-              <span className="hidden sm:block h-8 w-px bg-gray-300"></span>
+              <span className="hidden lg:block h-8 w-px bg-gray-300"></span>
 
               {/* Phone */}
               <div className="flex flex-col">
-                <span className="text-sm text-[#F4C430]">Phone No.</span>
-                <span className="text-sm text-white-600">{user?.phone || "N/A"}</span>
+                <span className="text-lg text-[#F4C430]">Phone No.</span>
+                <span className="text-lg text-white-600">{user?.phone || "N/A"}</span>
               </div>
 
-              <span className="hidden sm:block h-8 w-px bg-gray-300"></span>
+              <span className="hidden lg:block h-8 w-px bg-gray-300"></span>
 
               {/* Blood Group */}
               <div className="flex flex-col">
-                <span className="text-sm text-[#F4C430]">Blood Group</span>
-                <span className="text-sm text-white-600">{formData?.bloodGroup || "Not Set"}</span>
+                <span className="text-lg text-[#F4C430]">Blood Group</span>
+                <span className="text-lg text-white-600">{formData?.bloodGroup || "Not Set"}</span>
               </div>
             </div>
           </div>

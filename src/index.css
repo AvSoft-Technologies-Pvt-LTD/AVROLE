@@ -3,3 +3,44 @@
 .rounded-blob{
     border-radius:60% 40% 30% 70%/ 60% 30% 70% 40%;
 }
+:root {
+    --color-royal-blue: #1a237e;
+    --color-blackish-blue: #0d47a1;
+    --color-mustard: #ffc107;
+  }
+  
+body {
+    background-color: #f9fafb;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  
+  .btn-primary {
+    background-color: var(--color-royal-blue);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-blackish-blue);
+  }
+  
+  .btn-secondary {
+    background-color: var(--color-mustard);
+    color: #333;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #f57f17; /* darker mustard color */
+  }
+  
+  .card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+  }

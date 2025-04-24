@@ -168,35 +168,7 @@ const HeaderWithNotifications = () => {
             </div>
 
             {/* Profile */}
-            <div className="relative">
-              <button
-                onClick={handleProfileClick}
-                className="h-10 w-10 rounded-full bg-white border border-[#021630] flex items-center justify-center cursor-pointer hover:bg-[#F4C430] transition"
-              >
-                <User className="h-5 w-5 text-[#021630]" />
-              </button>
-
-              {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border border-gray-200 z-50">
-                  <button className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 transition-colors">
-                    <UserCircle className="h-4 w-4" />
-                    Profile
-                  </button>
-                  <button className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 transition-colors">
-                    <Settings className="h-4 w-4" />
-                    Settings
-                  </button>
-                  <hr className="my-1" />
-                  <button
-                    onClick={handleLogout}
-                    className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-red-600 transition-colors"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
+           
           </div>
         </div>
       </div>

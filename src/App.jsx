@@ -16,7 +16,6 @@ import BookApp from "./components/BookApp";
 // Dashboard Layout & Nested Routes
 import DashboardLayout from "./pages/layouts/DashboardLayout";
 import PdashboardRoutes from "./pages/layouts/menu/PatientDashboard/PdashboardRoutes";
-import PatientNotifications from './pages/layouts/menu/PatientDashboard/Notifications';
 
 
 // PrivateRoute Component
@@ -40,7 +39,7 @@ const App = () => {
 
         {/* Protected Routes */}
         <Route path="/dashboard/*" element={<PrivateRoute element={<DashboardLayout />} />}>
-          <Route path="notifications" element={<PatientNotifications />} />
+         
           <Route path="*" element={<PdashboardRoutes />} />
         </Route>
 
@@ -53,11 +52,11 @@ const App = () => {
 
 export default App;
 
-// import MedicalRecord from './pages/layouts/menu/PatientDashboard/MedicalRecord'
+// import LabTestBooking from './pages/layouts/menu/PatientDashboard/LabTestBooking'
 
 // function App() {
 //   return (
-//     <div><MedicalRecord/></div>
+//     <div><LabTestBooking/></div>
 //   )
 // }
 

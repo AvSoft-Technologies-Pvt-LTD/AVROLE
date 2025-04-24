@@ -1,159 +1,416 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+// import { useState } from 'react';
 
-const InputField = ({ label, type = 'text', placeholder, value, onChange, error, inputClassName }) => (
-  <div>
-    <label className="block text-sm mb-2 font-medium text-gray-700">{label}</label>
+// const InputField = ({ label, type = 'text', placeholder, value, onChange, error }) => (
+//   <div className="mb-4">
+//     <label className="block text-sm font-medium text-slate-600 mb-1.5">{label}</label>
+//     <input
+//       type={type}
+//       placeholder={placeholder}
+//       value={value}
+//       onChange={onChange}
+//       className="w-full px-4 py-1 rounded-lg border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-slate-50 text-slate-800 placeholder-slate-400"
+//     />
+//     {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+//   </div>
+// );
+
+// function App() {
+//   const [paymentMethod, setPaymentMethod] = useState('');
+//   const [cardDetails, setCardDetails] = useState({ number: '', name: '', expiry: '', cvv: '' });
+//   const [gpayDetails, setGpayDetails] = useState({ email: '', mobile: '', transactionId: '' });
+//   const [netbankingDetails, setNetbankingDetails] = useState({ bankName: '' });
+//   const [bankSearch, setBankSearch] = useState('');
+//   const [showSuccessModal, setShowSuccessModal] = useState(false);
+//   const [paymentStatus, setPaymentStatus] = useState('');
+
+//   const doctorName = "Sarah Wilson";
+//   const consultationFee = "1,500";
+
+//   const handlePayment = () => {
+//     setTimeout(() => {
+//       setPaymentStatus(`Payment of ₹${consultationFee} to Dr. ${doctorName} was successful!`);
+//       setShowSuccessModal(true);
+//     }, 1500);
+//   };
+
+//   return (
+//     <div className="min-h-[70vh] flex items-center justify-center p-2 sm:p-4">
+//     <div className="max-w-lg w-full bg-white rounded-xl shadow-xl overflow-hidden">
+//       {/* Header */}
+//       <div className="bg-slate-800 p-4 text-center">
+//         <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Payment Details</h2>
+//         <div className="inline-block bg-slate-700 rounded-full px-3 py-1">
+//           <span className="text-yellow-400 font-medium text-sm sm:text-base">₹{consultationFee}</span>
+//         </div>
+//       </div>
+  
+//       <div className="p-4 sm:p-6">
+//         {/* Doctor Info */}
+//         <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+//           <p className="text-slate-500 text-xs">Paying to</p>
+//           <p className="text-slate-800 font-semibold text-sm">Dr. {doctorName}</p>
+//           <p className="text-slate-500 text-xs">Consultation Fee</p>
+//         </div>
+  
+//         {/* Payment Methods */}
+//         <div className="grid grid-cols-3 gap-2 mb-4">
+//           {['Card', 'GPay', 'NetBanking'].map((method) => (
+//             <button
+//               key={method}
+//               onClick={() => setPaymentMethod(method)}
+//               className={`py-2 px-3 rounded-lg text-xs font-medium transition-all ${
+//                 paymentMethod === method
+//                   ? 'bg-yellow-400 text-slate-900 shadow-md shadow-yellow-400/20'
+//                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+//               }`}
+//             >
+//               {method}
+//             </button>
+//           ))}
+//         </div>
+  
+//         {/* Payment Forms */}
+//         <div className="space-y-3">
+//           {paymentMethod === 'Card' && (
+//             <>
+//               <InputField
+//                 label="Card Number"
+//                 placeholder="1234 5678 9012 3456"
+//                 value={cardDetails.number}
+//                 onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
+//                 small
+//               />
+//               <InputField
+//                 label="Name"
+//                 placeholder="John Doe"
+//                 value={cardDetails.name}
+//                 onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
+//                 small
+//               />
+//               <div className="grid grid-cols-2 gap-2">
+//                 <InputField
+//                   label="Expiry"
+//                   placeholder="MM/YY"
+//                   value={cardDetails.expiry}
+//                   onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
+//                   small
+//                 />
+//                 <InputField
+//                   label="CVV"
+//                   type="password"
+//                   placeholder="123"
+//                   value={cardDetails.cvv}
+//                   onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
+//                   small
+//                 />
+//               </div>
+//             </>
+//           )}
+  
+//           {paymentMethod === 'GPay' && (
+//             <>
+//               <InputField
+//                 label="Email"
+//                 type="email"
+//                 placeholder="you@example.com"
+//                 value={gpayDetails.email}
+//                 onChange={(e) => setGpayDetails({ ...gpayDetails, email: e.target.value })}
+//                 small
+//               />
+//               <InputField
+//                 label="Mobile"
+//                 type="tel"
+//                 placeholder="1234567890"
+//                 value={gpayDetails.mobile}
+//                 onChange={(e) => setGpayDetails({ ...gpayDetails, mobile: e.target.value })}
+//                 small
+//               />
+//             </>
+//           )}
+  
+//           {paymentMethod === 'NetBanking' && (
+//             <>
+//               <input
+//                 type="text"
+//                 placeholder="Search your bank"
+//                 value={bankSearch}
+//                 onChange={(e) => setBankSearch(e.target.value)}
+//                 className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm bg-slate-50"
+//               />
+//               <div className="max-h-36 overflow-y-auto space-y-1 bg-slate-50 rounded-md p-2">
+//                 {['HDFC', 'ICICI', 'SBI', 'Axis', 'Kotak']
+//                   .filter(bank => bank.toLowerCase().includes(bankSearch.toLowerCase()))
+//                   .map(bank => (
+//                     <label key={bank} className="flex items-center p-2 text-sm rounded-md cursor-pointer hover:bg-slate-100">
+//                       <input
+//                         type="radio"
+//                         name="bank"
+//                         value={bank}
+//                         checked={netbankingDetails.bankName === bank}
+//                         onChange={(e) => setNetbankingDetails({ bankName: e.target.value })}
+//                         className="text-yellow-400 focus:ring-yellow-400"
+//                       />
+//                       <span className="ml-2 text-slate-700">{bank}</span>
+//                     </label>
+//                   ))}
+//               </div>
+//             </>
+//           )}
+//         </div>
+  
+//         {/* Pay Button */}
+//         <button
+//           onClick={handlePayment}
+//           disabled={!paymentMethod}
+//           className="w-full mt-5 bg-yellow-400 text-slate-900 py-3 rounded-xl text-sm font-semibold hover:bg-yellow-500 disabled:opacity-50"
+//         >
+//           Pay ₹{consultationFee}
+//         </button>
+//       </div>
+//     </div>
+  
+//     {/* Success Modal */}
+//     {showSuccessModal && (
+//       <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center p-4 z-50">
+//         <div className="bg-white rounded-xl p-5 max-w-sm w-full text-center">
+//           <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+//             <span className="text-lg">✓</span>
+//           </div>
+//           <h3 className="text-lg font-semibold text-slate-800 mb-2">Payment Successful!</h3>
+//           <p className="text-slate-600 text-sm mb-4">{paymentStatus}</p>
+//           <button
+//             onClick={() => setShowSuccessModal(false)}
+//             className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700"
+//           >
+//             Close
+//           </button>
+//         </div>
+//       </div>
+//     )}
+//   </div>
+  
+//   );
+// }
+
+// export default App;
+import { useState } from 'react';
+import axios from 'axios';
+
+const InputField = ({ label, type = 'text', placeholder, value, onChange, error }) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-slate-600 mb-1.5">{label}</label>
     <input
       type={type}
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className={`w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputClassName}`}
+      className="w-full px-4 py-1 rounded-lg border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-slate-50 text-slate-800 placeholder-slate-400"
     />
-    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 );
 
-const PaymentForm = () => {
-  const location = useLocation();
-  const { doctorName, consultationFee } = location.state || {};
-
-  const [paymentAmount, setPaymentAmount] = useState(consultationFee || '');
-  const [paymentStatus, setPaymentStatus] = useState('');
+function App() {
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-
   const [cardDetails, setCardDetails] = useState({ number: '', name: '', expiry: '', cvv: '' });
   const [gpayDetails, setGpayDetails] = useState({ email: '', mobile: '', transactionId: '' });
   const [netbankingDetails, setNetbankingDetails] = useState({ bankName: '' });
   const [bankSearch, setBankSearch] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState('');
 
-  const handlePayment = () => {
-    setTimeout(() => {
-      setPaymentStatus(`Payment of ₹${paymentAmount} to Dr. ${doctorName} was successful!`);
-      setShowSuccessModal(true);
-      updatePaymentRecord();
-    }, 2000);
-  };
+  const doctorName = "Sarah Wilson";
+  const consultationFee = "1,500";
 
-  const updatePaymentRecord = () => {
+  // Function to handle payment submission
+  const handlePayment = async () => {
     const paymentData = {
-      doctorName,
-      amount: paymentAmount,
-      method: paymentMethod,
-      transactionId: 'TXN12345',
-      patientDetails: {}, // optional
+      date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+      invoiceNo: 'INV-' + Math.floor(Math.random() * 1000000),
+      doctorName: doctorName,
+      serviceType: 'Consultation',
+      amount: consultationFee,
+      patientName: 'John Doe', // Replace with actual patient name if available
+      method: paymentMethod
     };
 
-    // Example API call (disabled in mock)
-    // axios.post('/api/update-payment', paymentData)
-    //   .then(res => console.log(res.data))
-    //   .catch(err => console.error(err));
+    try {
+      // Send payment details to the backend for billing
+      await axios.post('/api/billing/payments', paymentData);
+
+      // Notify doctor about the payment
+      await axios.post('/api/notifications/doctor', {
+        doctorName: doctorName,
+        message: `Payment of ₹${consultationFee} has been received from ${paymentData.patientName}.`
+      });
+
+      // Show success modal
+      setPaymentStatus(`Payment of ₹${consultationFee} to Dr. ${doctorName} was successful!`);
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error('Payment failed:', error);
+      alert('Payment failed. Please try again.');
+    }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-100 to-blue-300">
-      <div className="bg-white text-blue-800 p-8 rounded-2xl shadow-lg max-w-md w-full h-[600px] overflow-auto">
-        <h2 className="text-2xl font-semibold mb-4 text-center">Payment to Dr. {doctorName}</h2>
-
-        <div className="mb-4 text-lg">
-          <span>Consultation Fee: ₹{consultationFee}</span>
+    <div className="min-h-[70vh] flex items-center justify-center p-2 sm:p-4">
+      <div className="max-w-lg w-full bg-white rounded-xl shadow-xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-slate-800 p-4 text-center">
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Payment Details</h2>
+          <div className="inline-block bg-slate-700 rounded-full px-3 py-1">
+            <span className="text-yellow-400 font-medium text-sm sm:text-base">₹{consultationFee}</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {['Card', 'GPay', 'NetBanking'].map((method) => (
-            <label
-              key={method}
-              className={`border rounded-lg p-3 text-center cursor-pointer transition-all hover:border-blue-400 ${paymentMethod === method ? 'border-blue-800 bg-blue-50 font-semibold' : 'border-gray-300'}`}
-            >
-              <input
-                type="radio"
-                name="paymentMethod"
-                value={method}
-                checked={paymentMethod === method}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="hidden"
-              />
-              {method}
-            </label>
-          ))}
-        </div>
-
-        {paymentMethod === 'Card' && (
-          <div className="space-y-4">
-            <InputField label="Card Number" placeholder="Enter card number" value={cardDetails.number}
-              onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })} />
-            <InputField label="Name on Card" placeholder="Enter name" value={cardDetails.name}
-              onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })} />
-            <div className="grid grid-cols-2 gap-4">
-              <InputField label="Expiry (MM/YY)" placeholder="MM/YY" value={cardDetails.expiry}
-                onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })} />
-              <InputField label="CVV" placeholder="CVV" type="password" value={cardDetails.cvv}
-                onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })} />
-            </div>
+        <div className="p-4 sm:p-6">
+          {/* Doctor Info */}
+          <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+            <p className="text-slate-500 text-xs">Paying to</p>
+            <p className="text-slate-800 font-semibold text-sm">Dr. {doctorName}</p>
+            <p className="text-slate-500 text-xs">Consultation Fee</p>
           </div>
-        )}
 
-        {paymentMethod === 'GPay' && (
-          <div className="space-y-4">
-            <InputField label="GPay Email" placeholder="example@gmail.com" value={gpayDetails.email}
-              onChange={(e) => setGpayDetails({ ...gpayDetails, email: e.target.value })} />
-            <InputField label="Mobile Number" type="tel" placeholder="10-digit number" value={gpayDetails.mobile}
-              onChange={(e) => setGpayDetails({ ...gpayDetails, mobile: e.target.value })} />
-            <InputField label="Transaction ID (optional)" placeholder="Txn12345..." value={gpayDetails.transactionId}
-              onChange={(e) => setGpayDetails({ ...gpayDetails, transactionId: e.target.value })} />
-          </div>
-        )}
-
-        {paymentMethod === 'NetBanking' && (
-          <div className="space-y-3">
-            <input type="text" placeholder="Search Bank" value={bankSearch}
-              onChange={(e) => setBankSearch(e.target.value)}
-              className="w-full p-4 border border-gray-300 rounded-md mb-4 focus:ring-blue-500" />
-            <div className="max-h-40 overflow-y-auto space-y-2">
-              {['HDFC', 'ICICI', 'SBI', 'Axis', 'Kotak', 'PNB', 'BOB', 'Yes Bank']
-                .filter(bank => bank.toLowerCase().includes(bankSearch.toLowerCase()))
-                .map(bank => (
-                  <label key={bank} className="flex items-center space-x-2">
-                    <input type="radio" name="selectedBank" value={bank}
-                      checked={netbankingDetails.bankName === bank}
-                      onChange={(e) => setNetbankingDetails({ ...netbankingDetails, bankName: e.target.value })} />
-                    <span>{bank}</span>
-                  </label>
-                ))}
-            </div>
-          </div>
-        )}
-
-        <button
-          onClick={handlePayment}
-          className="w-full bg-[#1E3A8A] text-white px-4 py-3 rounded-md hover:bg-[#172c5f] transition duration-300 mt-6"
-        >
-          Make Payment
-        </button>
-
-        {paymentStatus && (
-          <div className="mt-4 text-green-600 text-center">{paymentStatus}</div>
-        )}
-
-        {showSuccessModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-xl shadow-xl text-center max-w-sm">
-              <h3 className="text-xl font-semibold mb-2">🎉 Payment Successful</h3>
-              <p>{paymentStatus}</p>
+          {/* Payment Methods */}
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {['Card', 'GPay', 'NetBanking'].map((method) => (
               <button
-                onClick={() => setShowSuccessModal(false)}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                key={method}
+                onClick={() => setPaymentMethod(method)}
+                className={`py-2 px-3 rounded-lg text-xs font-medium transition-all ${
+                  paymentMethod === method
+                    ? 'bg-yellow-400 text-slate-900 shadow-md shadow-yellow-400/20'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
               >
-                Close
+                {method}
               </button>
-            </div>
+            ))}
           </div>
-        )}
+
+          {/* Payment Forms */}
+          <div className="space-y-3">
+            {paymentMethod === 'Card' && (
+              <>
+                <InputField
+                  label="Card Number"
+                  placeholder="1234 5678 9012 3456"
+                  value={cardDetails.number}
+                  onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
+                  small
+                />
+                <InputField
+                  label="Name"
+                  placeholder="John Doe"
+                  value={cardDetails.name}
+                  onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
+                  small
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <InputField
+                    label="Expiry"
+                    placeholder="MM/YY"
+                    value={cardDetails.expiry}
+                    onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
+                    small
+                  />
+                  <InputField
+                    label="CVV"
+                    type="password"
+                    placeholder="123"
+                    value={cardDetails.cvv}
+                    onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
+                    small
+                  />
+                </div>
+              </>
+            )}
+
+            {paymentMethod === 'GPay' && (
+              <>
+                <InputField
+                  label="Email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={gpayDetails.email}
+                  onChange={(e) => setGpayDetails({ ...gpayDetails, email: e.target.value })}
+                  small
+                />
+                <InputField
+                  label="Mobile"
+                  type="tel"
+                  placeholder="1234567890"
+                  value={gpayDetails.mobile}
+                  onChange={(e) => setGpayDetails({ ...gpayDetails, mobile: e.target.value })}
+                  small
+                />
+              </>
+            )}
+
+            {paymentMethod === 'NetBanking' && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Search your bank"
+                  value={bankSearch}
+                  onChange={(e) => setBankSearch(e.target.value)}
+                  className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm bg-slate-50"
+                />
+                <div className="max-h-36 overflow-y-auto space-y-1 bg-slate-50 rounded-md p-2">
+                  {['HDFC', 'ICICI', 'SBI', 'Axis', 'Kotak']
+                    .filter(bank => bank.toLowerCase().includes(bankSearch.toLowerCase()))
+                    .map(bank => (
+                      <label key={bank} className="flex items-center p-2 text-sm rounded-md cursor-pointer hover:bg-slate-100">
+                        <input
+                          type="radio"
+                          name="bank"
+                          value={bank}
+                          checked={netbankingDetails.bankName === bank}
+                          onChange={(e) => setNetbankingDetails({ bankName: e.target.value })}
+                          className="text-yellow-400 focus:ring-yellow-400"
+                        />
+                        <span className="ml-2 text-slate-700">{bank}</span>
+                      </label>
+                    ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Pay Button */}
+          <button
+            onClick={handlePayment}
+            disabled={!paymentMethod}
+            className="w-full mt-5 bg-yellow-400 text-slate-900 py-3 rounded-xl text-sm font-semibold hover:bg-yellow-500 disabled:opacity-50"
+          >
+            Pay ₹{consultationFee}
+          </button>
+        </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-5 max-w-sm w-full text-center">
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span className="text-lg">✓</span>
+            </div>
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">Payment Successful!</h3>
+            <p className="text-slate-600 text-sm mb-4">{paymentStatus}</p>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
+}
 
-export default PaymentForm;
+export default App;
+
+
