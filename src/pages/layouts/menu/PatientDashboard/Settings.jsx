@@ -188,7 +188,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto relative pb-20">
+    <div className=" mx-auto relative pb-20">
       <div className="relative">
         <div className="h-48 bg-[#0E1630] rounded-3xl shadow-md overflow-hidden">
           <div className="absolute inset-0 opacity-30 bg-pattern"></div>

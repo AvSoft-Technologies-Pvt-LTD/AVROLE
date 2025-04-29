@@ -68,15 +68,24 @@ import AppointmentList from "./AppointmentList";
 import MultiStepForm from "./MultiStepForm";
 import Insurance from "./Insurance";
 import Billing from "./Billing";
+import NearbyPharmacies from "./NearbyPharmacy"
 import PatientNotifications from './Notifications';
 import PaymentForm from './PaymentForm';
-import LabTestBooking from './LabTestBooking'
+import LabHome from './LabHome';
+import TestDetail from './TestDetail';
+import CartPage from './CartPage';
+import AvailableLabs from "./AvailableLab";
+import LabBooking from "./LabBooking";
+import BookApp from "./BookApp";
+import PaymentLab from "./PaymentLab";
+import TrackAppointment from "./TrackApp";
 import Emergency from "./Emergency";
+import Tabs from './Tabs'
 const PdashboardRoutes = () => {
   return (
     <Routes>
       <Route index element={<Dashboard />} />
-      <Route path="medical-record" element={<MedicalRecord />} />
+      <Route path="medical-record" element={<Tabs/>} />
       <Route path="settings" element={<Settings />} />
       <Route path="app" element={<AppointmentList />} />
       <Route path="book-appointment" element={<MultiStepForm />} />
@@ -88,9 +97,17 @@ const PdashboardRoutes = () => {
       <Route path="/payment" element={<PaymentForm />} />
       <Route path="shopping" element={<h1>Online Shopping</h1>} />
       <Route path="emergency" element={<h1>Emergency Info</h1>} />
-      <Route path="lab-tests" element={<LabTestBooking/>} />
+      <Route path="lab-tests" element={<LabHome />} />
+      <Route path="lab-tests/test/:id" element={<TestDetail />} />
+      <Route path="cart" element={<CartPage />} />
+      <Route path="available-labs/:id" element={<AvailableLabs />} />
+      <Route path="lab-booking/:id" element={<LabBooking />} />
+      <Route path="book-app/:id" element={<BookApp />} />
+      <Route path="payment1" element={<PaymentLab />} />
+      <Route path="track-appointment/:bookingId" element={<TrackAppointment />} />
+      
       <Route path="ambulance" element={<Emergency/>} />
-      {/* <Route path="pharmacy" element={<PharmacyFinder/>} /> */}
+      <Route path="pharmacy" element={<NearbyPharmacies/>} />
 
       {/* Fallback route */}
       <Route path="*" element={<h1>404 - Page Not Found</h1>} />

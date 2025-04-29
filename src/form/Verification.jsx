@@ -1,76 +1,67 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { verifyOTP, loginUser } from '../context-api/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { verifyOTP, sendOTP } from '../context-api/authSlice'; // Ensure the path is correct
 
-const OTPVerification = () => {
+const Verification = () => {
   const dispatch = useDispatch();
-  const realOtp = useSelector((state) => state.auth.otp);
-  const [otp, setOtp] = useState(new Array(6).fill(''));
-  const inputRefs = useRef([]);
-  const navigate = useNavigate();
-  
+  const navigate = useNavigate(); // Use navigate hook
+  const { isOTPSent, isVerified, loading, error } = useSelector(state => state.auth);
+  const [enteredOtp, setEnteredOtp] = useState(['', '', '', '', '', '']); // Update state to store each OTP digit separately
   const [resendTimer, setResendTimer] = useState(30);
-  const [loading, setLoading] = useState(false); // Add loading state
+
+  useEffect(() => {
+    // Dispatch sendOTP when component mounts to set the mock OTP
+    if (!isOTPSent) {
+      dispatch(sendOTP());
+    }
+  }, [dispatch, isOTPSent]);
+
+  useEffect(() => {
+    if (isVerified) {
+      navigate('/healthcard'); // Redirect to /health page
+    }
+  }, [isVerified, navigate]);
 
   useEffect(() => {
     if (resendTimer > 0) {
-      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
-      return () => clearTimeout(timer);
+      const timer = setInterval(() => {
+        setResendTimer(prev => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
     }
   }, [resendTimer]);
 
-  const handleChange = (element, index) => {
-    if (isNaN(element.value)) return;
+  const handleOtpChange = (e, index) => {
+    const value = e.target.value;
+    const updatedOtp = [...enteredOtp];
+    updatedOtp[index] = value;
+    setEnteredOtp(updatedOtp);
 
-    const newOtp = [...otp];
-    newOtp[index] = element.value;
-    setOtp(newOtp);
-
-    // Move to next input
-    if (element.value && index < 5) {
-      inputRefs.current[index + 1].focus();
+    // Move focus to the next input if the user enters a digit
+    if (value && index < 5) {
+      document.getElementById(`otp-input-${index + 1}`).focus();
     }
   };
 
-  const handleBackspace = (e, index) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
-    }
-  };
-
-  const registrationData = useSelector((state) => state.auth.registrationData);
-
-  const handleVerify = async () => {
-    const enteredOtp = otp.join('');
-    if (enteredOtp === realOtp) {
-      setLoading(true); // Start loading
-      try {
-        await dispatch(verifyOTP(enteredOtp)).unwrap();
-        await dispatch(loginUser({
-          phone: registrationData.phone,
-          password: registrationData.password
-        })).unwrap();
-        navigate("/healthcard");
-      } catch (error) {
-        alert('Error during OTP verification');
-      } finally {
-        setLoading(false); // End loading
-      }
+  const handleVerifyOTP = () => {
+    // Join OTP digits into a string for verification
+    const otpValue = enteredOtp.join('');
+    if (otpValue.length === 6) {
+      dispatch(verifyOTP(otpValue));
     } else {
-      alert('Invalid OTP');
+      console.log('Please enter a complete 6-digit OTP.');
     }
   };
 
-  const handleResend = async () => {
-    // Dispatch an action to generate/resend OTP here if needed
-    alert('OTP resent!');
-    setResendTimer(30);
+  const handleResend = () => {
+    dispatch(sendOTP());
+    setResendTimer(30); // Reset timer when OTP is resent
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f5f9fc]">
-      <div className="bg-white  shadow-lg w-full max-w-4xl p-6 flex items-center border border-gray-200">
+      <div className="bg-white shadow-lg w-full max-w-4xl p-6 flex items-center border border-gray-200">
         {/* Form Side */}
         <div className="flex-1 space-y-6">
           <h2 className="text-2xl font-bold text-[#0e1630] text-center">OTP Verification</h2>
@@ -79,27 +70,37 @@ const OTPVerification = () => {
           </p>
 
           <div className="flex justify-between gap-2 mb-6">
-            {otp.map((digit, index) => (
+            {Array.from({ length: 6 }).map((_, index) => (
               <input
                 key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
                 type="text"
                 maxLength="1"
-                value={digit}
-                onChange={(e) => handleChange(e.target, index)}
-                onKeyDown={(e) => handleBackspace(e, index)}
+                value={enteredOtp[index] || ''}
+                onChange={(e) => handleOtpChange(e, index)} // Use handleOtpChange
+                onKeyDown={(e) => {
+                  if (e.key === 'Backspace' && !enteredOtp[index]) {
+                    const prevIndex = index - 1;
+                    if (prevIndex >= 0) {
+                      document.getElementById(`otp-input-${prevIndex}`).focus();
+                    }
+                  }
+                }}
+                id={`otp-input-${index}`}
                 className="w-12 h-12 text-center border border-gray-300 rounded-md text-xl font-semibold text-[#0e1630] focus:outline-none focus:ring-2 focus:ring-[#01D48C]"
               />
             ))}
           </div>
 
+          {/* Error message */}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
           {/* Show loading spinner during verification */}
           <button
-            onClick={handleVerify}
+            onClick={handleVerifyOTP}
             className="w-full bg-[#01D48C] hover:bg-[#00bd7c] transition-colors text-white font-semibold py-2 rounded-lg shadow-md mb-3"
-            disabled={loading}  // Disable button while loading
+            disabled={loading} // Disable button while loading
           >
-            {loading ? 'Verifying...' : 'Verify & Proceed'}
+            {loading ? 'Verifying...' : 'Submit & Proceed'}
           </button>
 
           <div className="text-center text-sm text-gray-600">
@@ -109,6 +110,7 @@ const OTPVerification = () => {
               <button
                 onClick={handleResend}
                 className="text-[#01D48C] hover:underline font-medium"
+                disabled={loading} // Disable while OTP resend is in progress
               >
                 Resend OTP
               </button>
@@ -129,4 +131,4 @@ const OTPVerification = () => {
   );
 };
 
-export default OTPVerification;
+export default Verification;

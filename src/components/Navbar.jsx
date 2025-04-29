@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { IoCallOutline, IoChatbubblesOutline } from "react-icons/io5";
-import { RiContactsBook2Fill, RiHospitalLine,RiBriefcaseFill ,RiCustomerService2Fill , RiStethoscopeFill, RiFlaskFill, RiHomeOfficeLine, RiArrowDropDownFill, RiServiceFill } from "react-icons/ri";
-import { TbInfoHexagon } from "react-icons/tb";
+import {  RiHospitalLine,RiBankCardLine,RiBriefcaseLine , RiShieldCheckLine , RiCapsuleFill,RiStethoscopeFill, RiFlaskLine, RiArrowDropDownFill } from "react-icons/ri";
 import { useNavigate } from 'react-router-dom';
 
 // Color constants
@@ -34,7 +33,7 @@ function Navbar() {
       {/* Main Menu */}
       <ul className='flex gap-8 font-bold' style={{ color: primaryColor }}>
         <li className='cursor-pointer flex items-center gap-1 hover:text-[#F4C430] transition'>
-          <RiContactsBook2Fill /> My Health Card
+          <RiBankCardLine  /> My Health Card
         </li>
 
         <li
@@ -48,7 +47,7 @@ function Navbar() {
           className='relative cursor-pointer flex items-center gap-1 hover:text-[#F4C430] transition'
           onClick={() => toggleDropdown('labs')}
         >
-          <RiFlaskFill /> E-Labs
+          <RiFlaskLine /> E-Labs
         </li>
 
         <li
@@ -59,15 +58,15 @@ function Navbar() {
         </li>
 
         <li className='relative group cursor-pointer flex items-center gap-1 hover:text-[#F4C430] transition'>
-          <RiBriefcaseFill  size={20}  />
+          <RiBriefcaseLine  size={20}  />
           Services <RiArrowDropDownFill />
 
           <ul className='absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 bg-white border border-gray-200 py-2 px-3 mt-2 rounded-xl shadow-xl w-52 z-20 top-14 transition-all duration-200'>
   {[
-    { label: 'Healthcard', icon: <RiContactsBook2Fill /> },
+    { label: 'Healthcard', icon: <RiBankCardLine /> },
     { label: 'Consultation', icon: <RiStethoscopeFill /> },
-    { label: 'Pharmacy', icon: <RiFlaskFill /> },
-    { label: 'Insurance', icon: <TbInfoHexagon /> },
+    { label: 'Pharmacy', icon: <RiCapsuleFill /> },
+    { label: 'Insurance', icon: <RiShieldCheckLine /> },
     { label: 'Emergency', icon: <IoCallOutline /> }
   ].map(({ label, icon }) => (
     <li

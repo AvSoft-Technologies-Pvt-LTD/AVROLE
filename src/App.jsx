@@ -1,30 +1,46 @@
-import React from "react";
+// src/App.jsx
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from './context-api/authSlice';
 
-// Auth Pages
 import RegisterSelect from "./form/RegisterSelect";
 import Registration from "./form/Registration";
 import Verification from "./form/Verification";
 import LoginForm from "./form/Login";
-
-// Public Pages
 import Home from "./pages/Home";
 import Healthcard from "./components/Healthcard";
 import BookApp from "./components/BookApp";
-
-// Dashboard Layout & Nested Routes
 import DashboardLayout from "./pages/layouts/DashboardLayout";
+import PatientNotifications from './pages/layouts/menu/PatientDashboard/Notifications';
 import PdashboardRoutes from "./pages/layouts/menu/PatientDashboard/PdashboardRoutes";
 
-
-// PrivateRoute Component
-const PrivateRoute = ({ element }) => {
-  const { user } = useSelector((state) => state.auth);
-  return user ? element : <Navigate to="/login" />;
-};
-
 const App = () => {
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(true); // add loading state
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+
+    if (storedUser && storedToken) {
+      dispatch(setUser(JSON.parse(storedUser)));
+    }
+    setLoading(false); // stop loading after checking localstorage
+  }, [dispatch]);
+
+  const RequireAuth = ({ children }) => {
+    if (!isAuthenticated) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
+  };
+
+  if (loading) {
+    return <div className="text-center mt-20 text-lg">Loading...</div>;
+  }
+
   return (
     <Router>
       <Routes>
@@ -37,27 +53,25 @@ const App = () => {
         <Route path="/healthcard" element={<Healthcard />} />
         <Route path="/bookconsultation" element={<BookApp />} />
 
-        {/* Protected Routes */}
-        <Route path="/dashboard/*" element={<PrivateRoute element={<DashboardLayout />} />}>
-         
+        {/* Protected Dashboard Routes */}
+        <Route path="/dashboard" element={
+          <RequireAuth>
+            <DashboardLayout />
+          </RequireAuth>
+        }>
+          <Route path="notifications" element={<PatientNotifications />} />
           <Route path="*" element={<PdashboardRoutes />} />
         </Route>
 
-        {/* Fallback 404 Route */}
-        <Route path="*" element={<h1 className="text-center text-red-600 text-xl mt-10">404 - Page Not Found</h1>} />
+        {/* 404 Page */}
+        <Route path="*" element={
+          <h1 className="text-center text-red-600 text-xl mt-10">
+            404 - Page Not Found
+          </h1>
+        } />
       </Routes>
     </Router>
   );
 };
 
 export default App;
-
-// import LabTestBooking from './pages/layouts/menu/PatientDashboard/LabTestBooking'
-
-// function App() {
-//   return (
-//     <div><LabTestBooking/></div>
-//   )
-// }
-
-// export default App
