@@ -1,212 +1,208 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-const baseUrl = 'https://6801242781c7e9fbcc41aacf.mockapi.io/api/AV1/users';
+const BASE_URL = 'https://6810972027f2fdac2411f6a5.mockapi.io/users';
 
-const initialState = {
-  userType: '',
-  registrationData: {},
-  isOTPSent: false,
-  otp: '',
-  isVerified: false,
-  isLoggedIn: false,
-  loading: false,
-  error: null,
-  token: null,
-  user: null,
-  isAuthenticated: false,
-  email: null,
-  phone: null, // Add phone to the state
-};
+// --- Register User ---
+export const registerUser = createAsyncThunk('auth/registerUser', async (userData) => {
+  const userWithOtp = {
+    ...userData,
+    registerOTP: '123456',
+    loginOTP: null
+  };
+  const response = await axios.post(BASE_URL, userWithOtp);
+  return response.data;
+});
 
-// Register user async thunk
-export const registerUser = createAsyncThunk('auth/registerUser', async (userData, { rejectWithValue }) => {
+// --- Login with Email & Password ---
+export const loginUser = createAsyncThunk('auth/loginUser', async ({ email, password }, thunkAPI) => {
   try {
-    console.log('Registering user...', userData);
-    const response = await fetch(baseUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
-    });
+    const response = await axios.get(BASE_URL);
+    const user = response.data.find((u) => u.email === email && u.password === password);
 
-    if (!response.ok) {
-      console.error('Failed to register user:', response.statusText);
-      throw new Error('Failed to register user');
-    }
+    if (!user) throw new Error('Invalid credentials');
 
-    const data = await response.json();
+    const userWithToken = { ...user, token: 'mock-jwt-token-login' };
+    localStorage.setItem('user', JSON.stringify(userWithToken));
+    localStorage.setItem('token', userWithToken.token);
 
-    // Save registration data in localStorage, including email and phone
-    localStorage.setItem('user', JSON.stringify(data));
-    localStorage.setItem('email', data.email); // Save email
-    localStorage.setItem('phone', data.phone); // Save phone
-
-    console.log('Registration successful:', data);
-    return data;
-
+    return userWithToken;
   } catch (err) {
-    console.error('Error during registration:', err);
-    return rejectWithValue(err.message);
+    return thunkAPI.rejectWithValue('Invalid email or password');
   }
 });
 
-// Login user async thunk
-export const loginUser = createAsyncThunk('auth/loginUser', async (loginData, { rejectWithValue }) => {
+// --- Send Registration OTP ---
+export const sendOTP = createAsyncThunk('auth/sendOTP', async (phone, thunkAPI) => {
   try {
-    console.log('Logging in user...', loginData);
-    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const response = await axios.get(BASE_URL);
+    const user = response.data.find((u) => u.phone === phone);
+    if (!user) throw new Error('User not found');
 
-    if (storedUser) {
-      // Check if email-based login
-      if (loginData.email && storedUser.email === loginData.email && storedUser.password === loginData.password) {
-        const mockToken = `mock-token-${storedUser.id}`; // Simulated token
-        localStorage.setItem('token', mockToken);
-        console.log('Login successful with email');
-        return { user: storedUser, token: mockToken };
-      }
-      
-      // Check if phone-based login with OTP
-      if (loginData.phone && storedUser.phone === loginData.phone) {
-        // Generate OTP and send (here we mock it)
-        const mockToken = `mock-token-${storedUser.id}`; // Simulated token
-        localStorage.setItem('token', mockToken);
-        console.log('Login successful with phone');
-        return { user: storedUser, token: mockToken };
-      }
+    const updatedUser = { ...user, registerOTP: '123456' };
+    await axios.put(`${BASE_URL}/${user.id}`, updatedUser);
 
-      console.error('Invalid credentials');
-      throw new Error('Invalid credentials');
-    }
-
-    console.error('No registered user found');
-    throw new Error('No registered user found');
+    return { message: 'Registration OTP sent', otp: '123456' };
   } catch (err) {
-    console.error('Error during login:', err);
-    return rejectWithValue(err.message);
+    return thunkAPI.rejectWithValue(err.message);
   }
 });
 
-// Verify OTP async thunk
-export const verifyOTP = createAsyncThunk('auth/verifyOTP', async (otp, { getState, rejectWithValue }) => {
+// --- Send Login OTP ---
+export const sendLoginOTP = createAsyncThunk('auth/sendLoginOTP', async (phone, thunkAPI) => {
   try {
-    console.log('Verifying OTP:', otp);
-    const expectedOTP = getState().auth.otp;
-    if (otp === expectedOTP) {
-      console.log('OTP verified successfully');
-      return true;
-    } else {
-      console.error('Invalid OTP');
-      throw new Error('Invalid OTP');
-    }
+    const response = await axios.get(BASE_URL);
+    const user = response.data.find((u) => u.phone === phone);
+    if (!user) throw new Error('User not found');
+
+    const updatedUser = { ...user, loginOTP: '654321' };
+    await axios.put(`${BASE_URL}/${user.id}`, updatedUser);
+
+    return { message: 'Login OTP sent', otp: '654321' };
   } catch (err) {
-    console.error('Error during OTP verification:', err);
-    return rejectWithValue(err.message);
+    return thunkAPI.rejectWithValue(err.message);
   }
 });
 
+// --- Verify OTP ---
+export const verifyOTP = createAsyncThunk('auth/verifyOTP', async ({ phone, otp, type }, thunkAPI) => {
+  try {
+    const response = await axios.get(BASE_URL);
+    const user = response.data.find((u) => u.phone === phone);
+    if (!user) throw new Error('User not found');
+
+    const isValid = (
+      (type === 'register' && user.registerOTP === otp) ||
+      (type === 'login' && user.loginOTP === otp)
+    );
+
+    if (!isValid) throw new Error('Invalid OTP');
+
+    const userWithToken = {
+      ...user,
+      token: `mock-jwt-token-${type}-${Date.now()}`
+    };
+
+    localStorage.setItem('user', JSON.stringify(userWithToken));
+    localStorage.setItem('token', userWithToken.token);
+
+    return userWithToken;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.message || 'OTP Verification failed');
+  }
+});
+
+// --- Auth Slice ---
 const authSlice = createSlice({
   name: 'auth',
-  initialState,
+  initialState: {
+    user: null,
+    loading: false,
+    error: null,
+    isOTPSent: false,
+    isVerified: false,
+    isAuthenticated: false,
+    userType: null,
+  },
   reducers: {
+    resetAuthState: (state) => {
+      state.loading = false;
+      state.error = null;
+      state.isOTPSent = false;
+      state.isVerified = false;
+      state.isAuthenticated = false;
+      state.user = null;
+    },
     setUser: (state, action) => {
       state.user = action.payload;
-      state.isAuthenticated = !!action.payload;
-      state.isLoggedIn = !!action.payload;
-      state.token = localStorage.getItem('token');
-      state.email = localStorage.getItem('email');
-      state.phone = localStorage.getItem('phone'); // Retrieve phone from localStorage
+      state.isAuthenticated = true;
     },
-
     setUserType: (state, action) => {
       state.userType = action.payload;
-    },
-    saveRegistrationData: (state, action) => {
-      state.registrationData = action.payload;
-    },
-    sendOTP: (state) => {
-      state.isOTPSent = true;
-      state.otp = '123456'; // 🔐 Mock OTP
-    },
-    setOTP: (state, action) => {
-      state.otp = action.payload;
-    },
-    logout: (state) => {
-      localStorage.clear();
-      state.user = null;
-      state.email = null;
-      state.phone = null; // Clear phone on logout
-      state.isAuthenticated = false;
-      return initialState;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Register User
+      // Register
       .addCase(registerUser.pending, (state) => {
-        console.log('Registration is in progress...');
         state.loading = true;
-        state.error = null;  // Clear previous errors
+        state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        console.log('Registration finished successfully');
         state.loading = false;
+        state.user = action.payload;
         state.isOTPSent = true;
-        state.registrationData = action.payload;
       })
       .addCase(registerUser.rejected, (state, action) => {
-        console.error('Registration failed:', action.payload);
         state.loading = false;
-        state.error = action.payload || 'Registration failed. Please try again.';
+        state.error = action.error.message;
       })
 
-      // Login User
+      // Login with email/password
       .addCase(loginUser.pending, (state) => {
-        console.log('Login is in progress...');
         state.loading = true;
-        state.error = null;  // Clear previous errors
+        state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log('Login finished successfully');
         state.loading = false;
-        state.isLoggedIn = true;
-        state.token = action.payload.token;
-        state.user = action.payload.user;
+        state.user = action.payload;
+        state.isVerified = true;
         state.isAuthenticated = true;
-        state.email = localStorage.getItem('email');
-        state.phone = localStorage.getItem('phone');
       })
       .addCase(loginUser.rejected, (state, action) => {
-        console.error('Login failed:', action.payload);
         state.loading = false;
-        state.error = action.payload || 'Login failed. Invalid credentials or network issues.';
+        state.error = action.payload;
+      })
+
+      // Send OTP for registration
+      .addCase(sendOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendOTP.fulfilled, (state) => {
+        state.loading = false;
+        state.isOTPSent = true;
+      })
+      .addCase(sendOTP.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Send OTP for login
+      .addCase(sendLoginOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendLoginOTP.fulfilled, (state) => {
+        state.loading = false;
+        state.isOTPSent = true;
+      })
+      .addCase(sendLoginOTP.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
       // Verify OTP
       .addCase(verifyOTP.pending, (state) => {
-        console.log('OTP verification is in progress...');
         state.loading = true;
-        state.error = null;  // Clear previous errors
+        state.error = null;
       })
-      .addCase(verifyOTP.fulfilled, (state) => {
-        console.log('OTP verification finished successfully');
+      .addCase(verifyOTP.fulfilled, (state, action) => {
         state.loading = false;
+        state.user = action.payload;
         state.isVerified = true;
-        state.isLoggedIn = true;
+        state.isAuthenticated = true;
       })
       .addCase(verifyOTP.rejected, (state, action) => {
-        console.error('OTP verification failed:', action.payload);
         state.loading = false;
-        state.error = action.payload || 'OTP verification failed. Please try again.';
+        state.error = action.payload;
       });
-  },
+  }
 });
 
-export const {
-  setUserType,
-  saveRegistrationData,
-  sendOTP,
-  setOTP,
-  logout,
-  setUser
-} = authSlice.actions;
+export const { resetAuthState, setUser, setUserType } = authSlice.actions;
 
 export default authSlice.reducer;
+
+
+

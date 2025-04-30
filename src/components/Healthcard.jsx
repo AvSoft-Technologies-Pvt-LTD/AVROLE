@@ -7,26 +7,39 @@ import AVCard from "./microcomponents/AVCard";
 function Healthcard() {
   const userData = useSelector((state) => state.auth.user);
   const [healthId, setHealthId] = useState("");
-  const [gender, setGender] = useState("");
-  const [state, setState] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [stateValue, setStateValue] = useState("");
   const [city, setCity] = useState("");
-  const [dob, setDob] = useState("");
   const navigate = useNavigate();
   const cardRef = useRef();
 
   useEffect(() => {
-    if (userData?.gender && state && city && userData?.dob) {
-      setHealthId(
-        `AV${userData.gender.charAt(0).toUpperCase()}${state}${city}${userData.dob.replace(/-/g, "")}`
-      );
-    }
-  }, [userData?.gender, state, city, userData?.dob]);
+    const fetchHealthId = async () => {
+      if (userData?.dob && userData?.gender && stateValue && city) {
+        try {
+          const res = await fetch("http://localhost:5000/api/healthcard", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              gender: userData.gender,
+              dob: userData.dob,
+              state: stateValue,
+              city: city,
+            }),
+          });
+          const data = await res.json();
+          setHealthId(data.healthId); // Assume backend sends { healthId: "AV..." }
+        } catch (err) {
+          console.error("Error generating health ID:", err);
+        }
+      }
+    };
 
-  const handleSkip = () => {
-    navigate("/login");
-  };
+    fetchHealthId();
+  }, [stateValue, city, userData]);
+
+  const handleSkip = () => navigate("/login");
 
   const handlePrint = () => {
     const originalTitle = document.title;
@@ -41,16 +54,16 @@ function Healthcard() {
         {/* Left - AVCard */}
         <div className="w-full md:w-1/2 flex items-center justify-center" ref={cardRef}>
           <AVCard
-              initialName={`${userData?.firstName || ''} ${userData?.lastName || ''}`}
-              initialCardNumber={healthId}
-              initialGender={userData?.gender || ''}
-              initialPhoneNumber={userData?.phone || ''}
-              initialPhotoUrl="/default-avatar.png"
-              isReadOnly={true}
+            initialName={`${userData?.firstName || ''} ${userData?.lastName || ''}`}
+            initialCardNumber={healthId}
+            initialGender={userData?.gender || ''}
+            initialPhoneNumber={userData?.phone || ''}
+            initialPhotoUrl="/default-avatar.png"
+            isReadOnly={true}
           />
         </div>
 
-        {/* Right - Form */}
+        {/* Right - Display Info */}
         <div className="w-full md:w-1/2">
           <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-[#0e1630]">
             Welcome to <span className="text-[#F4C430]">AV Swasthya</span>
@@ -62,49 +75,31 @@ function Healthcard() {
             {healthId || "Your Health ID will appear here"}
           </p>
 
-          <form className="space-y-3 text-sm">
-            {/* First & Last Name */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="First Name"
-                value={userData?.firstName || ''}
-                className="p-2 w-1/2 border border-gray-300 rounded-md shadow-sm placeholder:text-xs"
-                readOnly
-              />
-              <input
-                type="text"
-                placeholder="Last Name"
-                value={userData?.lastName || ''}
-                className="p-2 w-1/2 border border-gray-300 rounded-md shadow-sm placeholder:text-xs"
-                readOnly
-              />
+          <div className="space-y-3 text-sm">
+            {/* User Info Displayed as Tags */}
+            <div className="flex flex-wrap gap-2 bg-[#f4c430]/20 rounded-md mb-4 text-sm">
+              <div >
+                <strong>First Name:</strong> {userData?.firstName || "N/A"}
+              </div>
+              <div >
+                <strong>Last Name:</strong> {userData?.lastName || "N/A"}
+              </div>
+              <div >
+                <strong>DOB:</strong> {userData?.dob || "N/A"}
+              </div>
+              <div >
+                <strong>Gender:</strong> {userData?.gender || "N/A"}
+              </div>
+              <div>
+                <strong>Phone:</strong> {userData?.phone || "N/A"}
+              </div>
             </div>
 
-            {/* DOB & Gender */}
-            <div className="flex gap-2">
-              <input
-                placeholder="DOB"
-                value={userData?.dob || ''}
-                className="p-2 w-1/2 border border-gray-300 rounded-md shadow-sm text-sm"
-                
-              />
-              <input
-                placeholder="Gender"
-                   type="text"
-                   value={userData?.gender || ''}
-                className="p-2 w-1/2 border border-gray-300 rounded-md shadow-sm text-sm"
-              
-                readOnly
-              >
-              </input>
-            </div>
-
-            {/* State & City */}
+            {/* State & City Dropdown */}
             <div className="flex gap-2">
               <select
                 className="p-2 w-1/2 border border-gray-300 rounded-md shadow-sm text-sm"
-                onChange={(e) => setState(e.target.value)}
+                onChange={(e) => setStateValue(e.target.value)}
               >
                 <option value="">State</option>
                 <option value="MH">Maharashtra</option>
@@ -121,29 +116,19 @@ function Healthcard() {
                 <option value="SBC">Bangalore (SBC)</option>
               </select>
             </div>
-          </form>
+          </div>
 
           {/* Buttons */}
           <div className="flex gap-4 mt-6">
             <button
-              className="flex-1 flex items-center justify-center gap-2 
-  bg-[#0e1630] text-white border-2 border-transparent 
-  hover:bg-white hover:text-[#0e1630] hover:border-[#0e1630]
-  font-semibold py-2 rounded-xl 
-  transition-all duration-300 
-  shadow-md hover:shadow-[#0e1630]/40 hover:scale-105"
+              className="flex-1 flex items-center justify-center gap-2 bg-[#0e1630] text-white border-2 border-transparent hover:bg-white hover:text-[#0e1630] hover:border-[#0e1630] font-semibold py-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-[#0e1630]/40 hover:scale-105"
               onClick={handlePrint}
             >
               <FaDownload /> Generate & Download
             </button>
 
             <button
-              className="flex-1 flex items-center justify-center gap-2 
-  bg-[#0e1630] text-white 
-  hover:bg-[#F4C430] hover:text-[#0e1630] 
-  font-semibold py-2 rounded-xl 
-  transition-all duration-300 
-  shadow-md hover:shadow-lg transform hover:scale-105"
+              className="flex-1 flex items-center justify-center gap-2 bg-[#0e1630] text-white hover:bg-[#F4C430] hover:text-[#0e1630] font-semibold py-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
               onClick={handleSkip}
             >
               Skip & Continue <FaArrowRight />
@@ -156,4 +141,3 @@ function Healthcard() {
 }
 
 export default Healthcard;
-

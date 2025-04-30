@@ -1,101 +1,84 @@
-import React, { useState, useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, sendOTP, verifyOTP } from '../context-api/authSlice';
 import { useNavigate } from 'react-router-dom';
 
-const LoginForm = () => {
+const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [loginMethod, setLoginMethod] = useState('otp'); // Default to OTP login
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState(''); // Email state for password login
-  const [password, setPassword] = useState(''); // Password state
-  const [otp, setOtp] = useState(new Array(6).fill('')); // OTP state
-  const inputRefs = useRef([]);
-  const [otpSent, setOtpSent] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { loading } = useSelector((state) => state.auth);
 
-  const handleSendOTP = () => {
-    if (phone) {
-      // Check if the phone number is registered
-      const storedUser = JSON.parse(localStorage.getItem('user'));
-      if (storedUser && storedUser.phone === phone) {
-        dispatch(sendOTP());
-        setOtpSent(true);
+  const [loginMethod, setLoginMethod] = useState('password'); // Email/password is primary
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState(new Array(6).fill(''));
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpError, setOtpError] = useState('');
+
+  const handleLogin = async () => {
+    if (loginMethod === 'password') {
+      const res = await dispatch(loginUser({ email, password }));
+
+      if (res.meta.requestStatus === 'fulfilled') {
+        navigate('/dashboard');
       } else {
-        setError('This phone number is not registered.');
+        setOtpError('Invalid email or password');
       }
+    } else if (loginMethod === 'otp') {
+      await handleSendOTP();
+    }
+  };
+
+  const handleSendOTP = async () => {
+    if (phone.length === 10) {
+      await dispatch(sendOTP(phone));
+      setOtpSent(true);
+      setOtpError('');
     } else {
-      setError('Please enter your phone number.');
+      setOtpError('Invalid phone number');
     }
   };
 
   const handleVerifyOTP = async () => {
-    setError('');
-    const enteredOTP = otp.join(''); // Join the OTP array into a string
-    if (!enteredOTP) {
-      setError('Please enter the OTP.');
-      return;
-    }
-    try {
-      setLoading(true);
-      await dispatch(verifyOTP(enteredOTP)).unwrap();
-      navigate('/dashboard');
-    } catch (err) {
-      setError('OTP verification failed: ' + err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const otpValue = otp.join('');
+    if (otpValue.length === 6) {
+      const res = await dispatch(verifyOTP({ phone, otp: otpValue, type: 'login' }));
 
-  const handleLoginWithEmail = async () => {
-    setError(''); // Reset error
-    if (loginMethod === 'otp' && phone) {
-      try {
-        setLoading(true);
-        const result = await dispatch(loginUser({ phone })).unwrap();
-        if (result) {
-          navigate('/dashboard');
-        }
-      } catch (err) {
-        setError('Login failed: ' + err);
-      } finally {
-        setLoading(false);
-      }
-    } else if (loginMethod === 'password' && email && password) {
-      try {
-        setLoading(true);
-        const result = await dispatch(loginUser({ email, password })).unwrap(); // Pass password too
-        if (result) {
-          navigate('/dashboard');
-        }
-      } catch (err) {
-        setError('Login failed: ' + err);
-      } finally {
-        setLoading(false);
+      if (res.meta.requestStatus === 'fulfilled') {
+        setOtp(new Array(6).fill(''));
+        navigate('/dashboard');
+      } else {
+        setOtpError('Invalid OTP');
       }
     } else {
-      setError('Please enter your phone number or email and password.');
+      setOtpError('Please enter a valid OTP');
     }
   };
 
-  const handleChange = (element, index) => {
-    if (isNaN(element.value)) return;
-
+  const handleOtpChange = (value, index) => {
+    if (!/^\d*$/.test(value)) return;
     const newOtp = [...otp];
-    newOtp[index] = element.value;
+    newOtp[index] = value;
     setOtp(newOtp);
 
-    // Move to next input
-    if (element.value && index < 5) {
-      inputRefs.current[index + 1].focus();
+    if (value && index < 5) {
+      const next = document.getElementById(`otp-${index + 1}`);
+      if (next) next.focus();
     }
   };
 
-  const handleBackspace = (e, index) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
+  const switchLoginMethod = (method) => {
+    setLoginMethod(method);
+    setOtpError('');
+    if (method === 'otp') {
+      setEmail('');
+      setPassword('');
+      setOtpSent(false);
+      setOtp(new Array(6).fill(''));
+    } else {
+      setPhone('');
+      setOtpSent(false);
     }
   };
 
@@ -107,75 +90,7 @@ const LoginForm = () => {
             Login to Your Account
           </h2>
 
-          <div className="flex justify-center mb-4">
-            <button
-              onClick={() => {
-                setLoginMethod('password');
-                setOtpSent(false); // Reset OTP state when switching to email
-              }}
-              className={`px-4 py-2 rounded-l-lg border-b-2 ${loginMethod === 'password' ? 'border-[#0e1630] text-[#0e1630]' : 'border-transparent text-gray-700'}`}
-            >
-              Email
-            </button>
-            <button
-              onClick={() => {
-                setLoginMethod('otp');
-                setOtpSent(false); // Reset OTP state when switching to OTP
-              }}
-              className={`px-4 py-2 rounded-r-lg border-b-2 ${loginMethod === 'otp' ? 'border-[#0e1630] text-[#0e1630]' : 'border-transparent text-gray-700'}`}
-            >
-              OTP
-            </button>
-          </div>
-
-          {loginMethod === 'otp' && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-              <input
-                type="tel"
-                placeholder="Enter your phone number"
-                value={phone}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d{0,10}$/.test(value)) {
-                    setPhone(value);
-                  }
-                }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
-                maxLength="10"
-              />
-              <button
-                onClick={handleSendOTP}
-                className="mt-2 bg-[#0e1630] hover:bg-[#F4C430] text-white py-2 px-4 rounded-lg"
-              >
-                Send OTP
-              </button>
-            </div>
-          )}
-
-          {otpSent && loginMethod === 'otp' && (
-            <div className="flex justify-between mb-4">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) => handleChange(e.target, index)}
-                  onKeyDown={(e) => handleBackspace(e, index)}
-                  className="w-10 h-10 text-center border border-gray-300 rounded-lg text-xl font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
-                />
-              ))}
-              <button
-                onClick={handleVerifyOTP}
-                className="bg-[#0e1630] text-white py-2 px-4 rounded-lg"
-              >
-                Verify OTP
-              </button>
-            </div>
-          )}
-
+          {/* Email/Password Login Form */}
           {loginMethod === 'password' && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -186,7 +101,7 @@ const LoginForm = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
               />
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1 mt-3">Password</label>
               <input
                 type="password"
                 placeholder="Enter your password"
@@ -195,34 +110,102 @@ const LoginForm = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
               />
               <button
-                onClick={handleLoginWithEmail}
-                className="mt-2 bg-[#0e1630] hover:bg-[#F4C430] text-white py-2 px-4 rounded-lg"
+                onClick={handleLogin}
+                disabled={loading || !email || !password}
+                className="mt-4 bg-[#0e1630] hover:bg-[#F4C430] text-white py-2 px-4 rounded-lg w-full"
               >
-                Login
+                {loading ? 'Logging in...' : 'Login'}
               </button>
-              <p className="text-sm text-gray-600 text-center mt-6">
-            Don't have an account?{" "}
+            </div>
+          )}
+
+          {/* OTP Login Form */}
+          {loginMethod === 'otp' && (
+            <>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input
+                  type="tel"
+                  placeholder="Enter your phone number"
+                  value={phone}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,10}$/.test(value)) setPhone(value);
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
+                  maxLength="10"
+                />
+                <button
+                  onClick={handleSendOTP}
+                  disabled={loading || phone.length !== 10}
+                  className="mt-2 bg-[#0e1630] hover:bg-[#F4C430] text-white py-2 px-4 rounded-lg"
+                >
+                  {loading ? 'Sending...' : 'Send OTP'}
+                </button>
+              </div>
+
+              {otpSent && (
+                <div className="mb-4">
+                  <div className="flex gap-2 justify-between mb-2">
+                    {otp.map((digit, index) => (
+                      <input
+                        key={index}
+                        id={`otp-${index}`}
+                        type="text"
+                        maxLength="1"
+                        value={digit}
+                        onChange={(e) => handleOtpChange(e.target.value, index)}
+                        className="w-10 h-10 text-center border border-gray-300 rounded-lg text-xl font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
+                      />
+                    ))}
+                  </div>
+                  <button
+                    onClick={handleVerifyOTP}
+                    disabled={loading || otp.join('').length !== 6}
+                    className="bg-[#0e1630] text-white py-2 px-4 rounded-lg w-full"
+                  >
+                    {loading ? 'Verifying...' : 'Verify OTP'}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Error Message */}
+          {otpError && <p className="text-red-500 text-sm mt-2">{otpError}</p>}
+
+          {/* Switch Login Methods */}
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => switchLoginMethod('password')}
+              className={`px-4 py-2 rounded-l-lg border-b-2 ${loginMethod === 'password' ? 'border-[#0e1630] text-[#0e1630]' : 'border-transparent text-gray-700'}`}
+            >
+              Email
+            </button>
+            <button
+              onClick={() => switchLoginMethod('otp')}
+              className={`px-4 py-2 rounded-r-lg border-b-2 ${loginMethod === 'otp' ? 'border-[#0e1630] text-[#0e1630]' : 'border-transparent text-gray-700'}`}
+            >
+              OTP
+            </button>
+          </div>
+
+          {/* Register link */}
+          <p className="text-sm text-gray-600 text-center mt-6">
+            Don't have an account?{' '}
             <span
               className="text-[#01D48C] hover:underline cursor-pointer"
-              onClick={() => navigate("/register")}
+              onClick={() => navigate('/register')}
             >
               Register
             </span>
           </p>
-            </div>
-          )}
-
-          {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
-
-          {loading && (
-            <div className="text-center mt-4">
-              <p className="text-[#0e1630]">Loading...</p>
-            </div>
-          )}
         </div>
-        <div className="flex-1 hidden lg:block">
+
+        {/* Right Side Image */}
+        <div className="w-full max-w-xs ml-8">
           <img
-            src="https://img.freepik.com/premium-vector/doctor-examines-report-disease-medical-checkup-annual-doctor-health-test-appointment-tiny-person-concept-preventive-examination-patient-consults-hospital-specialist-vector-illustration_419010-581.jpg?ga=GA1.1.587832214.1744916073&semt=ais_hybrid&w=740"  // Replace with your image URL
+            src="https://img.freepik.com/premium-vector/doctor-examines-report-disease-medical-checkup-annual-doctor-health-test-appointment-tiny-person-concept-preventive-examination-patient-consults-hospital-specialist-vector-illustration_419010-581.jpg"
             alt="Login illustration"
             className="w-full h-auto rounded-lg"
           />
@@ -232,4 +215,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default Login;

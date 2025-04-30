@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { FaUserAlt, FaHospital, FaStethoscope, FaFlask, FaPills } from 'react-icons/fa';
+import { FaUser, FaHospital, FaStethoscope, FaFlask, FaPills } from 'react-icons/fa';
 import { setUserType } from "../context-api/authSlice";
 
 const RegisterSelect = () => {
@@ -22,9 +22,7 @@ const RegisterSelect = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f9fc] flex items-center justify-center">
-      <div className="flex flex-col md:flex-row w-full max-w-5xl p-8 bg-white  shadow-lg">
-
-        {/* Left side (Text content) */}
+      <div className="flex flex-col md:flex-row w-full max-w-5xl p-8 bg-white shadow-lg">
         <div className="w-full md:w-1/2 mb-8 md:mb-0">
           <h1 className="text-2xl md:text-3xl font-semibold text-center text-[#0e1630] mb-8 leading-relaxed">
             Your <span className="text-[#F4C430]">Health</span>, Our Priority.
@@ -47,8 +45,8 @@ const RegisterSelect = () => {
 
             {isOpen && (
               <div className="absolute w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg">
-                <div onClick={() => handleSelect('User / My Health Records')} className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#F4C430] hover:text-white cursor-pointer">
-                  <FaUserAlt className="mr-2" /> Patient
+                <div onClick={() => handleSelect('User  / My Health Records')} className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#F4C430] hover:text-white cursor-pointer">
+                  <FaUser Alt className="mr-2" /> Patient
                 </div>
                 <div onClick={() => handleSelect('Hospital')} className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#F4C430] hover:text-white cursor-pointer">
                   <FaHospital className="mr-2" /> Hospital
@@ -67,7 +65,6 @@ const RegisterSelect = () => {
           </div>
         </div>
 
-        {/* Right side (Image) */}
         <div className="w-full md:w-1/2 flex items-center justify-center">
           <img
             src="https://img.freepik.com/premium-vector/doctor-examines-report-disease-medical-checkup-annual-doctor-health-test-appointment-tiny-person-concept-preventive-examination-patient-consults-hospital-specialist-vector-illustration_419010-581.jpg?ga=GA1.1.587832214.1744916073&semt=ais_hybrid&w=740"

@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import { verifyOTP, sendOTP } from '../context-api/authSlice'; // Ensure the path is correct
+import { verifyOTP, sendOTP } from '../context-api/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Verification = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Use navigate hook
-  const { isOTPSent, isVerified, loading, error } = useSelector(state => state.auth);
-  const [enteredOtp, setEnteredOtp] = useState(['', '', '', '', '', '']); // Update state to store each OTP digit separately
+  const navigate = useNavigate();
+  const { isOTPSent, isVerified, loading, error, user } = useSelector(state => state.auth);
+  const [enteredOtp, setEnteredOtp] = useState(['', '', '', '', '', '']);
   const [resendTimer, setResendTimer] = useState(30);
 
   useEffect(() => {
-    // Dispatch sendOTP when component mounts to set the mock OTP
     if (!isOTPSent) {
-      dispatch(sendOTP());
+      dispatch(sendOTP(user.phone)); // Pass the user's phone number
     }
-  }, [dispatch, isOTPSent]);
+  }, [dispatch, isOTPSent, user.phone]);
 
   useEffect(() => {
     if (isVerified) {
-      navigate('/healthcard'); // Redirect to /health page
+      navigate('/healthcard'); // Redirect to dashboard after verification
     }
   }, [isVerified, navigate]);
 
@@ -38,31 +37,29 @@ const Verification = () => {
     updatedOtp[index] = value;
     setEnteredOtp(updatedOtp);
 
-    // Move focus to the next input if the user enters a digit
     if (value && index < 5) {
       document.getElementById(`otp-input-${index + 1}`).focus();
     }
   };
 
   const handleVerifyOTP = () => {
-    // Join OTP digits into a string for verification
     const otpValue = enteredOtp.join('');
     if (otpValue.length === 6) {
-      dispatch(verifyOTP(otpValue));
+      dispatch(verifyOTP({ phone: user.phone, otp: otpValue, type: 'register' }));
     } else {
-      console.log('Please enter a complete 6-digit OTP.');
+      alert('Please enter a 6-digit OTP');
     }
   };
+  
 
   const handleResend = () => {
-    dispatch(sendOTP());
-    setResendTimer(30); // Reset timer when OTP is resent
+    dispatch(sendOTP(user.phone)); // Pass the user's phone number
+    setResendTimer(30);
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f5f9fc]">
       <div className="bg-white shadow-lg w-full max-w-4xl p-6 flex items-center border border-gray-200">
-        {/* Form Side */}
         <div className="flex-1 space-y-6">
           <h2 className="text-2xl font-bold text-[#0e1630] text-center">OTP Verification</h2>
           <p className="text-sm text-gray-600 text-center">
@@ -76,7 +73,7 @@ const Verification = () => {
                 type="text"
                 maxLength="1"
                 value={enteredOtp[index] || ''}
-                onChange={(e) => handleOtpChange(e, index)} // Use handleOtpChange
+                onChange={(e) => handleOtpChange(e, index)}
                 onKeyDown={(e) => {
                   if (e.key === 'Backspace' && !enteredOtp[index]) {
                     const prevIndex = index - 1;
@@ -90,15 +87,12 @@ const Verification = () => {
               />
             ))}
           </div>
-
-          {/* Error message */}
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-          {/* Show loading spinner during verification */}
           <button
             onClick={handleVerifyOTP}
             className="w-full bg-[#01D48C] hover:bg-[#00bd7c] transition-colors text-white font-semibold py-2 rounded-lg shadow-md mb-3"
-            disabled={loading} // Disable button while loading
+            disabled={loading}
           >
             {loading ? 'Verifying...' : 'Submit & Proceed'}
           </button>
@@ -110,23 +104,22 @@ const Verification = () => {
               <button
                 onClick={handleResend}
                 className="text-[#01D48C] hover:underline font-medium"
-                disabled={loading} // Disable while OTP resend is in progress
+                disabled={loading}
               >
                 Resend OTP
               </button>
             )}
           </div>
         </div>
-
-        {/* Image Side */}
         <div className="flex-1 hidden lg:block">
           <img
-            src="https://img.freepik.com/premium-vector/doctor-examines-report-disease-medical-checkup-annual-doctor-health-test-appointment-tiny-person-concept-preventive-examination-patient-consults-hospital-specialist-vector-illustration_419010-581.jpg?ga=GA1.1.587832214.1744916073&semt=ais_hybrid&w=740"  // Replace with your image URL
+            src="https://img.freepik.com/premium-vector/doctor-examines-report-disease-medical-checkup-annual-doctor-health-test-appointment-tiny-person-concept-preventive-examination-patient-consults-hospital-specialist-vector-illustration_419010-581.jpg?ga=GA1.1.587832214.1744916073&semt=ais_hybrid&w=740"
             alt="Login illustration"
             className="w-full h-auto rounded-lg"
           />
         </div>
       </div>
+      
     </div>
   );
 };
