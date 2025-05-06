@@ -84,30 +84,27 @@ const PaymentPage = () => {
     };
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "https://680b3642d5075a76d98a3658.mockapi.io/Lab/payment",
         paymentDetails
       );
-      if (response.status === 200) {
-        setSuccess(true);
-        setBookingId(id);
-      }
+      setSuccess(true);
+      setBookingId(id);
     } catch (err) {
-      console.error("Payment failed:", err);
       alert("Payment failed!");
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = "w-full p-4 shadow";
+  const inputClass = " w-full p-4 shadow";
   const sectionClass = "bg-white p-6 rounded shadow";
   const labelClass = "flex items-center gap-2";
   const errorText = "text-red-500 text-sm";
 
   if (success) {
     return (
-      <div className="flex w-full items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen ">
         <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md text-center">
           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mx-auto mb-4">
             <svg
@@ -247,14 +244,11 @@ const PaymentPage = () => {
           )}
 
           {method === "card" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Card Number
-              </label>
+            <div className="space-y-3">
               <input
                 type="text"
                 placeholder="Card Number"
-                className="input p-4 shadow w-full"
+                className={inputClass}
                 value={cardData.number}
                 onChange={(e) =>
                   setCardData({ ...cardData, number: e.target.value })
@@ -262,72 +256,98 @@ const PaymentPage = () => {
               />
               {errors.number && <p className={errorText}>{errors.number}</p>}
 
-              <div className="flex gap-4 mt-4">
-                <div className="w-1/2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Expiry Date
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="MM/YY"
-                    className="input p-4 shadow w-full"
-                    value={cardData.expiry}
-                    onChange={(e) =>
-                      setCardData({ ...cardData, expiry: e.target.value })
-                    }
-                  />
-                  {errors.expiry && (
-                    <p className={errorText}>{errors.expiry}</p>
-                  )}
-                </div>
-
-                <div className="w-1/2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CVV
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="CVV"
-                    className="input p-4 shadow w-full"
-                    value={cardData.cvv}
-                    onChange={(e) =>
-                      setCardData({ ...cardData, cvv: e.target.value })
-                    }
-                  />
-                  {errors.cvv && <p className={errorText}>{errors.cvv}</p>}
-                </div>
+              <div className="flex  gap-2">
+                <input
+                  type="text"
+                  placeholder="MM/YY"
+                  className="input p-4 shadow input-bordered w-1/2"
+                  value={cardData.expiry}
+                  onChange={(e) =>
+                    setCardData({ ...cardData, expiry: e.target.value })
+                  }
+                />
+                <input
+                  type="text"
+                  placeholder="CVV"
+                  className="input p-4 shadow input-bordered w-1/2"
+                  value={cardData.cvv}
+                  onChange={(e) =>
+                    setCardData({ ...cardData, cvv: e.target.value })
+                  }
+                />
               </div>
+              {errors.expiry && <p className={errorText}>{errors.expiry}</p>}
+              {errors.cvv && <p className={errorText}>{errors.cvv}</p>}
             </div>
           )}
 
           {method === "net" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Select Bank
-              </label>
-              <select
-                value={selectedBank}
-                onChange={(e) => setSelectedBank(e.target.value)}
-                className="input p-4 shadow w-full"
-              >
-                <option value="">Select Bank</option>
-                <option value="HDFC">HDFC</option>
-                <option value="ICICI">ICICI</option>
-                <option value="SBI">SBI</option>
-                <option value="Axis">Axis</option>
-              </select>
+            <div className="space-y-2 mt-3">
+              <p className="text-sm text-gray-600 mb-2">Select your bank:</p>
+              {["Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank"].map(
+                (bank) => (
+                  <label key={bank} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="netbank"
+                      checked={bookingDetails.bankName === bank}
+                      onChange={() => setSelectedBank(bank)}
+                    />
+                    {bank}
+                  </label>
+                )
+              )}
             </div>
           )}
         </div>
 
-        <div className="mt-6">
-          <button
-            onClick={handlePayment}
-            disabled={loading}
-            className="btn bg-[#0e1630] hover:bg-[#F4C430] text-white w-full"
-          >
-            {loading ? "Processing..." : "Pay Now"}
-          </button>
+        <button
+          className="mt-6 bg-[#0e1630] text-white hover:bg-[#F4C430] hover:text-[#0e1630]  px-6 py-2 rounded"
+          onClick={handlePayment}
+          disabled={loading}
+        >
+          {loading ? "Processing..." : `Pay ₹${bookingDetails.amount}`}
+        </button>
+      </div>
+
+      {/* Right - Order Summary */}
+      <div className="bg-gray-50 p-6 rounded shadow space-y-3 text-sm">
+        <h3 className="text-lg font-semibold mb-3">Appointment Summary</h3>
+        <p>
+          <strong>Patient:</strong> {bookingDetails.name}
+        </p>
+        <p>
+          <strong>Test:</strong> {bookingDetails.testTitle}
+        </p>
+        <p>
+          <strong>Lab:</strong> {bookingDetails.labName}
+        </p>
+        <p>
+          <strong>Visit Type:</strong>{" "}
+          {bookingDetails.location === bookingDetails.labLocation
+            ? "Visit Lab"
+            : "Home Sample Collection"}
+        </p>
+        <p>
+          <strong>Address:</strong> {bookingDetails.location}
+        </p>
+        <p>
+          <strong>Date & Time:</strong> {bookingDetails.date} at{" "}
+          {bookingDetails.time}
+        </p>
+        <hr className="my-2" />
+        <p>
+          <strong>Test Amount:</strong> ₹{bookingDetails.amount}
+        </p>
+        <p>
+          <strong>Collection Fee:</strong> ₹0
+        </p>
+        <p className="font-bold text-base mt-2">
+          Total: <span className="text-[#0e1630] ">₹{bookingDetails.amount}</span>
+        </p>
+        <div className="bg-blue-50 text-#0e1630]  p-2 rounded mt-2 text-xs">
+          You'll receive a confirmation email and your report within 24-48 hours
+          after sample collection.
         </div>
       </div>
     </div>

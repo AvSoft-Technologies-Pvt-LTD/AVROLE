@@ -1,171 +1,44 @@
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
 
-// const MedicalRecords = () => {
-//   const [records, setRecords] = useState([]);
-
-//   useEffect(() => {
-//     axios.get("https://your-api-endpoint.com/medical-records") // Replace with your real API
-//       .then(res => setRecords(res.data))
-//       .catch(err => console.error(err));
-//   }, []);
-
-//   return (
-//     <table className="min-w-full border">
-//       <thead>
-//         <tr>
-//           <th>Date</th>
-//           <th>Diagnosis</th>
-//           <th>Doctor Name</th>
-//           <th>Hospital Name</th>
-//           <th>Followup Needed</th>
-//           <th>Doctor Note</th>
-//           <th>Action</th>
-//         </tr>
-//       </thead>
-//       <tbody>
-//         {records.map((record, i) => (
-//           <tr key={i}>
-//             <td>{record.date}</td>
-//             <td>{record.diagnosis}</td>
-//             <td>{record.doctorName}</td>
-//             <td>{record.hospitalName}</td>
-//             <td>{record.followupNeeded ? "Yes" : "No"}</td>
-//             <td>{record.doctorNote}</td>
-//             <td><button className="text-blue-600">View</button></td>
-//           </tr>
-//         ))}
-//       </tbody>
-//     </table>
-//   );
-// };
-
-// export default MedicalRecords;
-
-
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-
-// const MedicalRecords = () => {
-//   const [records, setRecords] = useState([]);
-
-//   useEffect(() => {
-//     axios.get("https://6809f36e1f1a52874cde79fe.mockapi.io/send-note")
-//       .then(res => setRecords(res.data))
-//       .catch(err => console.error(err));
-//   }, []);
-
-//   return (
-//     <div className="p-4">
-//       <h2 className="text-xl font-bold mb-4">Medical Records</h2>
-//       <div className="overflow-x-auto">
-//         <table className="min-w-full border">
-//           <thead className="bg-gray-100">
-//             <tr>
-//               <th className="px-4 py-2">Date</th>
-//               <th className="px-4 py-2">Diagnosis</th>
-//               <th className="px-4 py-2">Doctor Name</th>
-//               <th className="px-4 py-2">Hospital Name</th>
-//               <th className="px-4 py-2">Followup Needed</th>
-//               <th className="px-4 py-2">Doctor Note</th>
-//               <th className="px-4 py-2">Action</th>
-//             </tr>
-//           </thead>
-//           <tbody className="bg-white">
-//             {records.map((record, i) => (
-//               <tr key={i} className="border-b">
-//                 <td className="px-4 py-2">{record.date}</td>
-//                 <td className="px-4 py-2">{record.diagnosis}</td>
-//                 <td className="px-4 py-2">{record.doctorName}</td>
-//                 <td className="px-4 py-2">{record.hospitalName}</td>
-//                 <td className="px-4 py-2">{record.followupNeeded ? "Yes" : "No"}</td>
-//                 <td className="px-4 py-2">{record.doctorNote}</td>
-//                 <td className="px-4 py-2">
-//                   <button className="text-blue-600 hover:underline">View</button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MedicalRecords;
-
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-
-// const MedicalRecords = () => {
-//   const [records, setRecords] = useState([]);
-
-//   const hospitalNames = ["Apollo Hospital", "AIIMS", "Fortis", "Max Healthcare"];
-
-//   useEffect(() => {
-//     axios
-//       .get("https://6809f36e1f1a52874cde79fe.mockapi.io/send-note")
-//       .then((res) => setRecords(res.data))
-//       .catch((err) => console.error(err));
-//   }, []);
-
-//   return (
-//     <div className="p-4">
-//       <h2 className="text-xl font-bold mb-4">Medical Records</h2>
-//       <div className="overflow-x-auto">
-//         <table className="min-w-full border">
-//           <thead className="bg-gray-100">
-//             <tr>
-//               <th className="px-4 py-2">Date</th>
-//               <th className="px-4 py-2">Diagnosis</th>
-//               <th className="px-4 py-2">Doctor Name</th>
-             
-              
-//               <th className="px-4 py-2">Doctor Note</th>
-         
-//             </tr>
-//           </thead>
-//           <tbody className="bg-white">
-//             {records.map((record, i) => (
-//               <tr key={record.id} className="border-b">
-//                 <td className="px-4 py-2">{record.date}</td>
-//                 <td className="px-4 py-2">{record.diagnosis}</td>
-//                 <td className="px-4 py-2">{record.doctorName}</td>
-              
-              
-//                 <td className="px-4 py-2">{record.note}</td>
-//                 <td className="px-4 py-2">
-               
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MedicalRecords;
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const MedicalRecords = () => {
   const [records, setRecords] = useState([]);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     axios
-      .get("https://6809f36e1f1a52874cde79fe.mockapi.io/send-note")
+      .get("https://6809f36e1f1a52874cde79fe.mockapi.io/note")
       .then((res) => setRecords(res.data))
       .catch((err) => console.error(err));
   }, []);
 
+  const openNoteModal = (noteData) => {
+    setSelectedNote(noteData);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedNote(null);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Unknown";
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="overflow-x-auto p-4 bg-gray-50 rounded-xl shadow-inner">
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">Medical Records</h1>
+
+      {/* Table */}
       <table className="min-w-full border-collapse shadow-lg rounded-xl overflow-hidden text-sm">
         <thead className="bg-slate-800 text-white uppercase tracking-wider text-xs">
           <tr>
-            <th className="px-6 py-3 text-left">Date</th>
+            <th className="px-6 py-3 text-left">Appointment Date</th>
             <th className="px-6 py-3 text-left">Diagnosis</th>
             <th className="px-6 py-3 text-left">Doctor Name</th>
             <th className="px-6 py-3 text-left">Doctor's Note</th>
@@ -177,14 +50,51 @@ const MedicalRecords = () => {
               key={index}
               className="border-b border-gray-200 hover:bg-slate-50 transition duration-200"
             >
-              <td className="px-6 py-4 whitespace-nowrap">{item.date}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{item.diagnosis}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{formatDate(item.appointmentDate)}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{item.symptoms}</td>
               <td className="px-6 py-4 whitespace-nowrap">{item.doctorName}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{item.note || "—"}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <button
+                  onClick={() => openNoteModal(item)}
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition duration-150"
+                >
+                  View Note
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Modal */}
+      {isModalOpen && selectedNote && (
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+          <div className="relative bg-white px-6 pt-6 pb-10 rounded-xl shadow-xl w-full max-w-md border border-gray-300 animate-fadeIn">
+            
+            {/* Close icon at top right */}
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-gray-500 hover:text-red-600 text-2xl font-bold"
+              aria-label="Close"
+            >
+              &times;
+            </button>
+
+            {/* Title */}
+            <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Doctor's Note</h2>
+
+            {/* Note content */}
+            <div className="text-gray-700 max-h-[60vh] overflow-y-auto px-1 whitespace-pre-wrap bg-gray-50 p-4 rounded-md border border-gray-200">
+              {selectedNote.note || "No note available."}
+            </div>
+
+            {/* Last Updated info */}
+            <div className="text-right text-xs text-gray-400 mt-4 pr-1">
+              Last Updated: {formatDate(selectedNote.createdAt)}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

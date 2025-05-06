@@ -78,7 +78,7 @@ const Register = () => {
   const validateForm = () => {
     const errors = {};
     const phoneRegex = /^\d{10}$/;
-    const nameRegex = /^[A-Za-z]{1,20}$/;
+    const nameRegex = /^[A-Za-z]{3}$/;
     const aadhaarRegex = /^\d{4}-\d{4}-\d{4}$/;
     const emailRegex = /^\S+@\S+\.\S+$/;
     const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
@@ -86,10 +86,10 @@ const Register = () => {
 const { firstName, middleName, lastName, phone, aadhaar, dob, email, occupation, permanentAddress, password, confirmPassword, agreeDeclaration } = formData;
 
 if (!firstName.trim()) errors.firstName = "First name is required";
-else if (!nameRegex.test(firstName)) errors.firstName = "First name must be up to 20 characters and contain only letters";
-if (middleName && !nameRegex.test(middleName)) errors.middleName = "Middle name must be up to 20 characters and contain only letters";
+// else if (!nameRegex.test(firstName)) errors.firstName = "First name must be up to 20 characters and contain only letters";
+// if (middleName && !nameRegex.test(middleName)) errors.middleName = "Middle name must be up to 20 characters and contain only letters";
 if (!lastName.trim()) errors.lastName = "Last name is required";
-else if (!nameRegex.test(lastName)) errors.lastName = "Last name must be up to 20 characters and contain only letters";
+// else if (!nameRegex.test(lastName)) errors.lastName = "Last name must be up to 20 characters and contain only letters";
 if (!phoneRegex.test(phone)) errors.phone = "Phone number must be exactly 10 digits";
 if (!aadhaarRegex.test(aadhaar)) errors.aadhaar = "Invalid Aadhaar format";
 if (!dob) errors.dob = "Date of birth is required";
@@ -211,7 +211,7 @@ if (!agreeDeclaration) errors.agreeDeclaration = "You must agree to the terms an
           </div>
           {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
           <div className="text-center mt-4 text-[#0e1630]">
-            <p>Already have an account? <button type="button" onClick={() => navigate("/login")} className="text-[#01D48C] font-semibold">Login Here</button></p>
+            <p>Already have an account? <button type="button" onClick={() => navigate("/login")} className="text-[#F4C430] font-semibold">Login Here</button></p>
           </div>
           {isModalOpen && photoPreview && (
             <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">

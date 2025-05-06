@@ -20,6 +20,7 @@ const Verification = () => {
     if (isVerified) {
       navigate('/healthcard'); // Redirect to dashboard after verification
     }
+    5
   }, [isVerified, navigate]);
 
   useEffect(() => {

@@ -46,7 +46,7 @@ const Tabs = () => {
           }`}
           onClick={() => setActiveTab("report")}
         >
-          Reports
+          Labs/Scans Reports
         </button>
       </div>
       <div>{renderContent()}</div>

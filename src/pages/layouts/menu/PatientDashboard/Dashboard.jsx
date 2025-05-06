@@ -43,7 +43,8 @@ const initialUserData = {
   }
 };
 
-function App() {
+function Dashboard() {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(initialUserData);
   const [activeSection, setActiveSection] = useState('basic');
   const [showModal, setShowModal] = useState(false);
@@ -96,14 +97,19 @@ function App() {
     }));
     
     try {
-      await axios.post('https://680cc0c92ea307e081d4edda.mockapi.io/personalHealthDetails', updatedHealthData);
+      const payload = {
+        ...updatedHealthData,
+        name: `${user?.firstName || "Guest"} ${user?.lastName || ""}`.trim(),
+      };
+    
+      await axios.post('https://680cc0c92ea307e081d4edda.mockapi.io/personalHealthDetails', payload);
       showFeedback('Personal health data saved successfully');
       setShowModal(false);
     } catch (error) {
       console.error('Error submitting personal health data:', error);
       showFeedback('Failed to save personal health data', 'error');
     }
-  };
+  }
 
   const handleFamilyInputChange = (e) => {
     const { name, value } = e.target;
@@ -125,24 +131,38 @@ function App() {
 
   const handleAddFamilyMember = async (e) => {
     e.preventDefault();
-    if (familyInput.name && familyInput.relation) {
-      const updatedFamilyMembers = [...userData.familyMembers, familyInput];
-      setUserData(prev => ({
-        ...prev,
-        familyMembers: updatedFamilyMembers
-      }));
-      setFamilyInput(defaultFamilyMember);
-
-      try {
-        await axios.post('https://6808fb0f942707d722e09f1d.mockapi.io/FamilyData', familyInput);
-        showFeedback('Family member added successfully');
-      } catch (error) {
-        console.error('Error adding family member:', error);
-        showFeedback('Failed to add family member', 'error');
+    if (!familyInput.name || !familyInput.relation) return showFeedback('Name & relation required', 'warning');
+  
+    const updatedMembers = [...userData.familyMembers, familyInput];
+    setUserData(prev => ({ ...prev, familyMembers: updatedMembers }));
+    setFamilyInput(defaultFamilyMember);
+  
+    const payload = {
+      name: `${user?.firstName || 'Guest'} ${user?.lastName || ''}`.trim(), // Add the user's name
+      familyHistory: {
+        members: updatedMembers.map(({ name, relation, illness = '', age = '' }) => ({
+          name,
+          relation,
+          illness,
+          age
+        }))
       }
+    };
+    
+    const url = `http://192.168.1.63:8080/api/patient/pathvariable=${userData.id}/familyhistory`;
+    
+    try {
+      const res = await axios.put(url, payload);
+      typeof res.data === 'string'
+        ? alert(res.data)
+        : showFeedback('Family member data submitted successfully');
+    } catch (err) {
+      console.error('Error:', err);
+      showFeedback('Failed to submit family data', 'error');
     }
-  };
-  const navigate = useNavigate();
+  };    
+  
+ 
 
   const handleGenerateCard = () => {
     navigate("/healthcard"); // your path here
@@ -184,17 +204,21 @@ function App() {
       ...prev,
       insurance: updatedInsuranceData
     }));
-
     try {
-      await axios.post('https://680cbc3a2ea307e081d4e1ce.mockapi.io/insuranceDetails', updatedInsuranceData);
+      const payload = {
+        ...updatedInsuranceData,
+        name: `${user?.firstName || "Guest"} ${user?.lastName || ""}`.trim()
+      };
+    
+      await axios.post('https://680cbc3a2ea307e081d4e1ce.mockapi.io/insuranceDetails', payload);
       showFeedback('Insurance data saved successfully');
       setShowModal(false);
     } catch (error) {
       console.error('Error submitting insurance data:', error);
       showFeedback('Failed to save insurance data', 'error');
     }
-  };
-
+  }
+    
   const getIcon = (iconName) => {
     switch (iconName) {
       case 'user':
@@ -434,7 +458,7 @@ function App() {
 
             {activeSection === 'family' && (
               <div className="space-y-6">
-                <h2 className="text-xl sm:text-2xl font-bold">Family Details</h2>
+                <h2 className="text-xl sm:text-2xl font-bold">Family History</h2>
                 
                 <form onSubmit={handleAddFamilyMember} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -684,11 +708,11 @@ function App() {
         </div>
       )}
 
-      <div className="mt-8 p-4">
+      <div className="mt-8">
        <DashboardOverview/>
       </div>
     </div>
   );
 }
 
-export default App;
+export default Dashboard;

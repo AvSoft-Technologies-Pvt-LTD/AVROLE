@@ -30,7 +30,7 @@ const Insurance = () => {
     setError("");
     try {
       const response = await axios.get(
-        "https://mocki.io/v1/ffcd66b8-6e2d-40cd-9e08-c130e2137be5"
+        "https://mocki.io/v1/2d95f119-2942-43ab-9d9e-185c48e77f27"
       );
       const apiData = response.data;
       if (apiData && apiData[mobile]) {

@@ -57,13 +57,13 @@ const BookApp = () => {
       newErrors.phone = "Phone number must be exactly 10 digits";
     }
 
-    if (!form.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(form.email)
-    ) {
-      newErrors.email = "Enter a valid email address";
-    }
+    // if (!form.email.trim()) {
+    //   newErrors.email = "Email is required";
+    // } else if (
+    //   !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(form.email)
+    // ) {
+    //   newErrors.email = "Enter a valid email address";
+    // }
 
     if (!form.date) newErrors.date = "Date is required";
     if (!form.time) newErrors.time = "Time is required";
@@ -242,7 +242,7 @@ const BookApp = () => {
         )}
 
         {/* Email */}
-        <input
+        {/* <input
           name="email"
           placeholder="Email Address"
           value={form.email}
@@ -251,7 +251,7 @@ const BookApp = () => {
         />
         {errors.email && (
           <p className={errorTextClasses}>{errors.email}</p>
-        )}
+        )} */}
 
         {/* Proceed Button */}
         <button

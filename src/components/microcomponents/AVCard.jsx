@@ -1,12 +1,28 @@
 import { useState, useEffect } from "react";
-import { Stethoscope, QrCode, Heart, Activity, Pill, Syringe, ChevronFirst as FirstAid, User, HeartPulse } from "lucide-react";
+import {
+  Stethoscope,
+  QrCode,
+  Heart,
+  Activity,
+  Pill,
+  Syringe,
+  ChevronFirst as FirstAid,
+  User,
+  HeartPulse,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
-const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
+const AVCard = ({
+  initialName,
+  initialCardNumber,
+  initialGender,
+  imageUrl,
+}) => {
   const [formData, setFormData] = useState({
     name: initialName,
     cardNumber: initialCardNumber,
     gender: initialGender,
+    imageUrl: imageUrl,
   });
 
   useEffect(() => {
@@ -14,16 +30,14 @@ const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
       name: initialName,
       cardNumber: initialCardNumber,
       gender: initialGender,
+      imageUrl: imageUrl,
     });
-  }, [initialName, initialCardNumber, initialGender]);
+  }, [initialName, initialCardNumber, initialGender, imageUrl]);
 
-  // Healthcare themed background icons
   const bgIcons = [
     { Icon: Heart, position: "top-4 right-28", size: 24 },
     { Icon: Pill, position: "bottom-8 left-12", size: 24 },
-    // { Icon: FirstAid, position: "top-16 left-8", size: 24 },
     { Icon: Syringe, position: "bottom-22 right-26", size: 24 },
-    // { Icon: Activity, position: "top-20 right-24", size: 16 },
   ];
 
   return (
@@ -34,7 +48,7 @@ const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
       className="relative w-[380px] h-[240px] rounded-2xl overflow-hidden shadow-2xl hover:shadow-[#0E1630]/20 transition-shadow duration-300"
     >
       {/* Gradient Background */}
-      <motion.div 
+      <motion.div
         animate={{
           background: [
             "linear-gradient(135deg,rgb(214, 187, 65) 0%, rgba(10,21,40,0.95) 50%, rgba(10, 40, 40, 0.9) 100%)",
@@ -42,7 +56,7 @@ const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
         }}
         className="absolute inset-0"
       />
-      
+
       {/* Background Icons */}
       <div className="absolute inset-0 overflow-hidden">
         {bgIcons.map((icon, index) => (
@@ -69,26 +83,21 @@ const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
       <div className="relative h-full p-8 flex flex-col justify-between">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
+            {/* Avatar */}
             <motion.div
               whileHover={{ scale: 1.1 }}
               className="relative group"
             >
-              <motion.div
-                className="w-14 h-14 rounded-full bg-[#F4C430]/20 flex items-center justify-center"
-                animate={{
-                  boxShadow: [
-                    "0 0 0 0 rgba(46, 7, 7, 0.2)",
-                    "0 0 0 15px rgba(176, 179, 55, 0)",
-                  ],
-                }}
-                transition={{
-                  duration: 1.8,
-                  repeat: Infinity,
-                }}
-              >
-                <Stethoscope className="w-8 h-8 text-[#F4C430]" />
-              </motion.div>
+              <motion.img
+                src={formData.imageUrl || "https://img.freepik.com/vecteurs-premium/icone-profil-avatar-par-defaut-image-utilisateur-medias-sociaux-icone-avatar-gris-silhouette-profil-vide-illustration-vectorielle_561158-3383.jpg?ga=GA1.1.1895928303.1746111458&semt=ais_hybrid&w=740"}
+                alt="User Avatar"
+                className="w-25 h-12 rounded-full object-cover border-2 border-[#F4C430] shadow-md"
+                initial={{ opacity: 0.9 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
+              />
             </motion.div>
+
             <div className="space-y-1">
               <input
                 type="text"
@@ -108,9 +117,10 @@ const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
               />
             </div>
           </div>
+
           {/* QR Code */}
-          <motion.div 
-            whileHover={{ scale: 1.05 }} 
+          <motion.div
+            whileHover={{ scale: 1.05 }}
             className="flex flex-col items-center gap-1.5 bg-[#F4C430]/10 p-2.5 rounded-xl hover:bg-[#F4C430]/20 transition-colors duration-300"
           >
             <QrCode className="w-8 h-8 text-[#F4C430]" />
@@ -119,7 +129,7 @@ const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
 
         {/* Details Section */}
         <div className="grid grid-cols-2 gap-4 mt-6">
-          <motion.div 
+          <motion.div
             whileHover={{ scale: 1.02 }}
             className="flex items-center gap-3 bg-[#F4C430]/10 p-3 rounded-xl hover:bg-[#F4C430]/20 transition-colors duration-300"
           >
@@ -133,12 +143,11 @@ const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
               placeholder="Gender"
             />
           </motion.div>
-
         </div>
 
         {/* Footer */}
-        <motion.div 
-          className="flex justify-end items-end mt-6" 
+        <motion.div
+          className="flex justify-end items-end mt-6"
           whileHover={{ scale: 1.02 }}
         >
           <div className="text-right">
@@ -147,13 +156,15 @@ const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
               <motion.div
                 animate={{
                   scale: [1, 1.3, 1, 0.9, 1],
-                  transition: { duration: 1, repeat: Infinity }
+                  transition: { duration: 1, repeat: Infinity },
                 }}
               >
                 <HeartPulse className="w-6 h-6 text-[#F4C430]" />
               </motion.div>
             </div>
-            <div className="text-xs text-[#f5f5f5]/80 tracking-wider mt-1">Healthcare Solutions</div>
+            <div className="text-xs text-[#f5f5f5]/80 tracking-wider mt-1">
+              Healthcare Solutions
+            </div>
           </div>
         </motion.div>
       </div>
@@ -162,6 +173,3 @@ const AVCard = ({ initialName, initialCardNumber, initialGender }) => {
 };
 
 export default AVCard;
-
-
-
