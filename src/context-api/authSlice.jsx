@@ -15,23 +15,25 @@ export const registerUser = createAsyncThunk('auth/registerUser', async (userDat
 });
 
 // --- Login with Email & Password ---
-export const loginUser = createAsyncThunk('auth/loginUser', async ({ email, password }, thunkAPI) => {
-  try {
-    const response = await axios.get(BASE_URL);
-    const user = response.data.find((u) => u.email === email && u.password === password);
+export const loginUser = createAsyncThunk('auth/loginUser',async ({ email, password }, thunkAPI) => {
+    try {
+      const response = await axios.get(BASE_URL);
+      const user = response.data.find((u) => u.email === email && u.password === password);
 
-    if (!user) throw new Error('Invalid credentials');
+      if (!user) throw new Error('Invalid credentials');
 
-    const userWithToken = { ...user, token: 'mock-jwt-token-login' };
-    localStorage.setItem('user', JSON.stringify(userWithToken));
-    localStorage.setItem('token', userWithToken.token);
+      const userWithToken = { ...user, token: 'mock-jwt-token-login' };
+      localStorage.setItem('user', JSON.stringify(userWithToken));
+      localStorage.setItem('token', userWithToken.token);
+      localStorage.setItem('email', user.email);      
+      localStorage.setItem('userId', user.id);         
 
-    return userWithToken;
-  } catch (err) {
-    return thunkAPI.rejectWithValue('Invalid email or password');
+      return userWithToken;
+    } catch (err) {
+      return thunkAPI.rejectWithValue('Invalid email or password');
+    }
   }
-});
-
+);
 // --- Send Registration OTP ---
 export const sendOTP = createAsyncThunk('auth/sendOTP', async (phone, thunkAPI) => {
   try {
@@ -203,6 +205,5 @@ const authSlice = createSlice({
 export const { resetAuthState, setUser, setUserType } = authSlice.actions;
 
 export default authSlice.reducer;
-
 
 

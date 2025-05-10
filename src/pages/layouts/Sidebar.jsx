@@ -100,7 +100,7 @@ const Sidebar = () => {
       {/* Profile */}
       <div className="flex items-center mb-6">
         <img
-          src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150"
+          src="https://static.vecteezy.com/system/resources/previews/036/280/651/original/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-illustration-vector.jpg"
           alt="User Avatar"
           className={`w-10 h-10 rounded-full border-2 border-yellow-500 shadow-lg mr-3 ${isCollapsed ? "mx-auto" : ""}`}
         />

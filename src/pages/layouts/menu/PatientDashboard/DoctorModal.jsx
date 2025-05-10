@@ -47,6 +47,10 @@ const DoctorModal = ({
             {doctor.specialty} • {doctor.qualification}
           </p>
           <p className="text-sm text-slate-500">{doctor.experience} years experience</p>
+          <p className="text-sm text-slate-500 italic">{doctor.doctorType}</p>
+          {doctor.doctorType === "Hospital Associated" && doctor.hospitalName && (
+            <p className="text-sm text-slate-500">:hospital: {doctor.hospitalName}</p>
+          )}
           <p className="text-base font-medium text-yellow-600">Fees: ₹{doctor.fees}</p>
         </div>
         <div className="space-y-2">
@@ -74,10 +78,10 @@ const DoctorModal = ({
                 const isSelected = selectedTime === time;
                 const baseStyle = `text-sm rounded-xl py-1.5 px-2 font-medium transition-colors duration-200`;
                 const classes = isBooked
-                  ? `bg-slate-300 text-white cursor-not-allowed ${baseStyle}`
+                  ? `bg-red-500 text-white cursor-not-allowed ${baseStyle}`
                   : isSelected
-                  ? `bg-yellow-600 text-white ${baseStyle}`
-                  : `bg-slate-200 text-slate-800 hover:bg-yellow-400 hover:text-white ${baseStyle}`;
+                  ? `bg-green-700 text-white ${baseStyle}`
+                  : `bg-green-100 text-green-800 hover:bg-green-300 ${baseStyle}`;
                 return (
                   <button
                     key={index}

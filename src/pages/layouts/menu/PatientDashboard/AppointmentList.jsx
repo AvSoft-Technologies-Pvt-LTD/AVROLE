@@ -7,179 +7,146 @@ const AppointmentList = () => {
   const [activeTab, setActiveTab] = useState("doctor");
   const [labAppointments, setLabAppointments] = useState([]);
   const [doctorAppointments, setDoctorAppointments] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [showSuggestion, setShowSuggestion] = useState(false);
 
-  useEffect(() => {
-    fetchLabAppointments();
-    fetchDoctorAppointments();
-  }, []);
+  useEffect(() => { fetchLab(); fetchDoctor(); }, []);
+  useEffect(() => { const t = setTimeout(() => setShowSuggestion(true), 3000); return () => clearTimeout(t); }, []);
 
-  const fetchLabAppointments = async () => {
+  const fetchLab = async () => {
     try {
-      const response = await axios.get("https://680b3642d5075a76d98a3658.mockapi.io/Lab/payment");
-      setLabAppointments(response.data.reverse());
-    } catch (error) {
-      console.error("Error fetching lab appointments", error);
+      const res = await axios.get("https://680b3642d5075a76d98a3658.mockapi.io/Lab/payment");
+      setLabAppointments(res.data.reverse());
     }
+    catch (err) { console.error(err); }
   };
 
-  const fetchDoctorAppointments = async () => {
+  const fetchDoctor = async () => {
     try {
-      const response = await axios.get("https://67e3e1e42ae442db76d2035d.mockapi.io/register/book");
-      setDoctorAppointments(response.data.reverse());
-    } catch (error) {
-      console.error("Error fetching doctor appointments", error);
+      const patientEmail = localStorage.getItem("email");
+      const patientUserId = localStorage.getItem("userId");
+  
+      if (!patientEmail || !patientUserId) {
+        console.error("No user email or userId found in localStorage.");
+        return;
+      }
+      const normalizedPatientEmail = patientEmail.trim().toLowerCase();
+      const normalizedPatientUserId = patientUserId.trim();
+      console.log("Patient Email from LocalStorage:", normalizedPatientEmail);
+      console.log("Patient UserId from LocalStorage:", normalizedPatientUserId);
+      const res = await axios.get("https://67e3e1e42ae442db76d2035d.mockapi.io/register/book");
+      console.log("All Appointments Fetched:", res.data);
+  
+      // Filter appointments to match either email or userId
+      const filteredAppointments = res.data.filter((appointment) => {
+        const appointmentEmail = appointment.email ? appointment.email.trim().toLowerCase() : null;
+        const appointmentUserId = appointment.userId ? appointment.userId.trim() : null;
+  
+        console.log(`Comparing appointment email: '${appointmentEmail}' with patient email: '${normalizedPatientEmail}'`);
+        console.log(`Comparing appointment userId: '${appointmentUserId}' with patient userId: '${normalizedPatientUserId}'`);
+  
+        // Return true if the appointment's email or userId matches the current user
+        return appointmentEmail === normalizedPatientEmail || appointmentUserId === normalizedPatientUserId;
+      });
+      console.log("Filtered Appointments:", filteredAppointments);
+      setDoctorAppointments(filteredAppointments.reverse());
+      setAppointments(filteredAppointments.reverse());
+    } catch (err) {
+      console.error("Error fetching doctor appointments:", err);
     }
   };
-
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case "Appointment Confirmed":
-        return "bg-blue-100 text-blue-800";
-      case "Technician On the Way":
-        return "bg-yellow-100 text-yellow-800";
-      case "Sample Collected":
-        return "bg-purple-100 text-purple-800";
-      case "Test Processing":
-        return "bg-orange-100 text-orange-800";
-      case "Report Ready":
-        return "bg-green-100 text-green-800";
-      case "Cancelled":
-        return "bg-red-100 text-red-600";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const handleBookAppointment = () => {
-    if (activeTab === "lab") {
-      navigate("/dashboard/lab-tests");
-    } else {
-      navigate("/dashboard/book-appointment");
-    }
-  };
-
-  const handleTrackAppointment = (id) => {
-    navigate(`/dashboard/track-appointment/${id}`);
-  };
-
-  const handleCancelDoctorAppointment = (id) => {
-    if (window.confirm("Are you sure you want to cancel this appointment?")) {
-      axios
-        .delete(`https://67e3e1e42ae442db76d2035d.mockapi.io/register/book/${id}`)
-        .then(() => {
-          fetchDoctorAppointments();
-          alert("Appointment cancelled successfully!");
-        })
-        .catch((error) => {
-          console.error("Error cancelling appointment", error);
-          alert("Failed to cancel appointment!");
-        });
-    }
-  };
+  const getStatusClass = (s) => ({
+    "Appointment Confirmed": "bg-blue-100 text-blue-800",
+    "Technician On the Way": "bg-yellow-100 text-yellow-800",
+    "Sample Collected": "bg-purple-100 text-purple-800",
+    "Test Processing": "bg-orange-100 text-orange-800",
+    "Report Ready": "bg-green-100 text-green-800",
+    "Cancelled": "bg-red-100 text-red-600",
+  }[s] || "bg-gray-100 text-gray-800");
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <div className="flex gap-4">
-         
-          <button
-            onClick={() => setActiveTab("doctor")}
-            className={`px-4 py-2 rounded-full ${activeTab === "doctor" ? "bg-[#0e1630] text-white" : "bg-gray-200 text-gray-700"}`}
-          >
-            Doctor Appointments
-          </button>
-          <button
-            onClick={() => setActiveTab("lab")}
-            className={`px-4 py-2 rounded-full ${activeTab === "lab" ? "bg-[#0e1630] text-white" : "bg-gray-200 text-gray-700"}`}
-          >
-            Lab Appointments
-          </button>
+        <div className="flex gap-3">
+          {["doctor", "lab"].map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-full ${activeTab === tab ? "bg-[#0e1630] text-white" : "bg-gray-200 text-gray-700"}`}>
+              {tab.charAt(0).toUpperCase() + tab.slice(1)} Appointments
+            </button>
+          ))}
         </div>
-        <button
-          onClick={handleBookAppointment}
-          className="bg-[#F4C430] hover:bg-[#0e1630] hover:text-white text-[#0e1630] px-6 py-2 rounded-full font-semibold"
-        >
+        <button onClick={() => navigate(activeTab === "lab" ? "/dashboard/lab-tests" : "/dashboard/book-appointment")} className="bg-[#F4C430] hover:bg-[#0e1630] hover:text-white text-[#0e1630] px-6 py-2 rounded-full font-semibold">
           Book Appointment
         </button>
       </div>
+
       {activeTab === "doctor" && (
         <div className="bg-white rounded shadow p-6 overflow-x-auto">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">Doctor Appointments</h2>
+          <h2 className="text-xl font-semibold mb-4">Doctor Appointments</h2>
           <table className="min-w-full text-left">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="py-2 px-4 border-b">Doctor Name</th>
-                <th className="py-2 px-4 border-b">Speciality</th>
-                <th className="py-2 px-4 border-b">Date</th>
-                <th className="py-2 px-4 border-b">Time</th>
-                <th className="py-2 px-4 border-b">Status</th>
-                {/* <th className="py-2 px-4 border-b">Action</th> */}
-              </tr>
-            </thead>
+            <thead><tr className="bg-gray-100">{["Doctor", "Speciality", "Date", "Time", "Status"].map(h => <th key={h} className="py-2 px-4 border-b">{h}</th>)}</tr></thead>
             <tbody>
-            {doctorAppointments.map((apt) => (
-  <tr key={apt.id} className="hover:bg-gray-50">
-    <td className="py-2 px-4 border-b">{apt.doctorName}</td>
-    <td className="py-2 px-4 border-b">{apt.specialty}</td>
-    <td className="py-2 px-4 border-b">{apt.date}</td>
-    <td className="py-2 px-4 border-b">{apt.time}</td>
-    <td className="py-2 px-4 border-b">
-      {apt.status === 'Confirmed' ? (
-        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-semibold">
-          Confirmed
-        </span>
-      ) : (
-        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm font-semibold">
-          Pending
-        </span>
-      )}
-    </td>
+              {doctorAppointments.map(a => (
+                <tr key={a.id} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b">{a.doctorName}</td>
+                  <td className="py-2 px-4 border-b">{a.specialty}</td>
+                  <td className="py-2 px-4 border-b">{a.date}</td>
+                  <td className="py-2 px-4 border-b">{a.time}</td>
+                  <td className="py-2 px-4 border-b">
+                    {a.status === "Confirmed" ? (
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-semibold">Confirmed</span>
+                    ) : a.status?.toLowerCase() === "rejected" ? (
+                        <div className="flex items-center space-x-4 text-sm mt-1">
+                          <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold">Rejected</span>
+                          <div className="text-gray-600"><strong>Reason:</strong> {a.rejectReason}    </div>
+                        </div>
+                    ) : (
+                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm font-semibold">
+                        Waiting for {a.doctorName}'s Confirmation
+                      </span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-       {activeTab === "lab" && (
+
+      {activeTab === "lab" && (
         <div className="bg-white rounded shadow p-6 overflow-x-auto">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">Lab Appointments</h2>
+          <h2 className="text-xl font-semibold mb-4">Lab Appointments</h2>
           <table className="min-w-full text-left">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="py-2 px-4 border-b">Appointment ID</th>
-                <th className="py-2 px-4 border-b">Test</th>
-                <th className="py-2 px-4 border-b">Lab Name</th>
-                <th className="py-2 px-4 border-b">Date</th>
-                <th className="py-2 px-4 border-b">Time</th>
-                <th className="py-2 px-4 border-b">Status</th>
-                <th className="py-2 px-4 border-b">Action</th>
-              </tr>
-            </thead>
+            <thead><tr className="bg-gray-100">{["ID", "Test", "Lab", "Date", "Time", "Status", "Action"].map(h => <th key={h} className="py-2 px-4 border-b">{h}</th>)}</tr></thead>
             <tbody>
-              {labAppointments.map((apt) => (
-                <tr key={apt.id} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 border-b">{apt.bookingId}</td>
-                  <td className="py-2 px-4 border-b">{apt.testTitle}</td>
-                  <td className="py-2 px-4 border-b">{apt.labName}</td>
-                  <td className="py-2 px-4 border-b">{apt.date}</td>
-                  <td className="py-2 px-4 border-b">{apt.time}</td>
+              {labAppointments.map(a => (
+                <tr key={a.id} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b">{a.bookingId}</td>
+                  <td className="py-2 px-4 border-b">{a.testTitle}</td>
+                  <td className="py-2 px-4 border-b">{a.labName}</td>
+                  <td className="py-2 px-4 border-b">{a.date}</td>
+                  <td className="py-2 px-4 border-b">{a.time}</td>
                   <td className="py-2 px-4 border-b">
-                    <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusBadgeClass(apt.status)}`}>
-                      {apt.status || "Pending"}
+                    <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusClass(a.status)}`}>
+                      {a.status || "Pending"}
                     </span>
                   </td>
                   <td className="py-2 px-4 border-b">
-                    <button
-                      onClick={() => handleTrackAppointment(apt.bookingId)}
-                      className="text-[#0e1630] hover:text-[#F4C430] font-semibold"
-                    >
-                      Track
-                    </button>
+                    <button onClick={() => navigate(`/dashboard/track-appointment/${a.bookingId}`)} className="text-[#0e1630] hover:text-[#F4C430] font-semibold">Track</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {showSuggestion && (
+        <div className="fixed top-1/4 right-1/12 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg border border-gray-200 rounded-lg p-4 max-w-sm z-50">
+          <h3 className="text-lg font-semibold mb-2 text-[#0e1630]">Still waiting?</h3>
+          <p className="text-sm text-gray-700">The doctor hasn't confirmed yet. Would you like to connect with a verified Avaswasthya doctor?</p>
+          <div className="mt-4 flex justify-end gap-2">
+            <button className="bg-gray-200 px-4 py-1 rounded-full text-gray-700" onClick={() => { setShowSuggestion(false); sessionStorage.setItem('suggestionPopupShown', 'true'); }}>No, wait</button>
+            <button className="bg-[#F4C430] hover:bg-[#0e1630] hover:text-white px-4 py-1 rounded-full text-[#0e1630] font-semibold" onClick={() => navigate('/dashboard/book-appointment')}>Connect Now</button>
+          </div>
         </div>
       )}
     </div>
