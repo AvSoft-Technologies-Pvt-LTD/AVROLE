@@ -264,6 +264,12 @@ body { @apply font-sans text-[#0E1630] bg-white leading-relaxed; font-family:var
   animation: inputShake 0.4s;
 }
 
+
+.main-content.with-sidebar {
+  margin-right: 16rem; /* or the width of your sidebar */
+  transition: margin 0.3s;
+}
+
 /* Save button animations */
 @keyframes circular-progress {
   0% { transform: rotate(0deg) scale(1); opacity: 0.3; }

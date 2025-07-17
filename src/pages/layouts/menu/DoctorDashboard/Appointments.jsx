@@ -1,9 +1,9 @@
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import { Toaster, toast } from 'react-hot-toast';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Pagination from '../../../../components/Pagination'; // Adjust path if needed
 
 const doctorName = 'Dr.Sheetal S. Shelke';
 const notify = async (name, phone, message, btn = false) =>
@@ -24,10 +24,12 @@ const DoctorAppointments = () => {
   const [state, setState] = useState({ currentPage: 1 });
   const [tab, setTab] = useState('pending');
   const [hidePagination, setHidePagination] = useState(false);
-  const pageSize = 5;
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 4;
   const filtered = appointments.filter(a => a.status.toLowerCase() === tab);
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const current = filtered.slice((state.currentPage - 1) * pageSize, state.currentPage * pageSize);
+
+  const totalPages = Math.ceil(filtered.length / rowsPerPage);
+  const current = filtered.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
   const [loading, setLoading] = useState(true), [rejectId, setRejectId] = useState(null), [rescheduleId, setRescheduleId] = useState(null);
   const [reasons, setReasons] = useState({}), [reschedule, setReschedule] = useState({ date: '', time: '' });
@@ -38,74 +40,41 @@ const DoctorAppointments = () => {
     return updated;
   });
 
-const fetchAppointments = async () => { try { setLoading(true); const res = await axios.get('https://67e3e1e42ae442db76d2035d.mockapi.io/register/book'); const merged = res.data.filter(i => i.doctorName === doctorName).map(i => ({ id:i.id, name:i.name||'Unknown', email:i.email, phone:i.phone||'N/A', date:i.date, time:i.time, reason:i.symptoms, specialty:i.specialty, type:i.consultationType, status:'Pending', prescription:'', link:'', rejectReason:'', linkSent:false, rescheduleCount:0 })).map(a => ({ ...a, ...appointments.find(x => x.id === a.id) })); setAppointments(merged); localStorage.setItem('appointments', JSON.stringify(merged)); } 
-catch(e) { console.error(e); toast.error('Failed to fetch appointments'); } 
-finally { setLoading(false); } };
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get('https://67e3e1e42ae442db76d2035d.mockapi.io/register/book');
+      const merged = res.data.filter(i => i.doctorName === doctorName)
+        .map(i => ({
+          id: i.id,
+          name: i.name || 'Unknown',
+          email: i.email,
+          phone: i.phone || 'N/A',
+          date: i.date,
+          time: i.time,
+          reason: i.symptoms,
+          specialty: i.specialty,
+          type: i.consultationType,
+          status: 'Pending',
+          prescription: '',
+          link: '',
+          rejectReason: '',
+          linkSent: false,
+          rescheduleCount: 0
+        }))
+        .map(a => ({ ...a, ...appointments.find(x => x.id === a.id) }));
+      setAppointments(merged);
+      localStorage.setItem('appointments', JSON.stringify(merged));
+    }
+    catch (e) {
+      console.error(e);
+      toast.error('Failed to fetch appointments');
+    }
+    finally {
+      setLoading(false);
+    }
+  };
   const navigate = useNavigate();
-
-//   const handleAccept = async id => {
-//     const appt = appointments.find(a => a.id === id); if (!appt) return;
-//     try {
-//       const confirmed = { ...appt, status: 'Confirmed', confirmedAt: new Date().toISOString(), doctorName, isVisible: false };
-//       const updated = appointments.map(a => a.id === id ? confirmed : a);
-//       setAppointments(updated); localStorage.setItem('appointments', JSON.stringify(updated));
-//       await axios.put(`https://67e3e1e42ae442db76d2035d.mockapi.io/register/book/${id}`, confirmed);
-//       await notify(appt.name, appt.phone, `✅ Appointment confirmed with ${doctorName} on ${appt.date} at ${appt.time}.`, true);
-//       toast.success('Appointment moved to confirmed tab');
-//       const transferToast = toast.loading('Preparing for OPD list...');
-//       setTimeout(async () => {
-//         try {
-//           const transfer = {
-//             ...confirmed,
-//             patientListId: `PL_${id}`,
-//             transferredFrom: id,
-//             type: 'OPD',
-//             consultationStarted: false,
-//             consultationCompleted: false,
-//             advice: null,
-//             prescription: null,
-//             movedDate: null,
-//             isVisible: true
-//           };
-//           await axios.put(`https://67e3e1e42ae442db76d2035d.mockapi.io/register/book/${id}`, transfer);
-//           const final = appointments.map(a => a.id === id ? transfer : a);
-//           setAppointments(final);
-//           localStorage.setItem('appointments', JSON.stringify(final));
-//           toast.dismiss(transferToast);
-//           toast.success('Appointment now visible in OPD list');
-//           localStorage.setItem('highlightOPDId', id);
-
-//           // --- Split name before POST ---
-//           const { firstName, middleName, lastName } = splitName(transfer.name);
-
-//           // --- POST to AddPatient endpoint ---
-//        // ...existing code...
-// const response = await axios.post('https://684be316ed2578be881cdb55.mockapi.io/addpatient', {
-//   name: transfer.name,
-//   firstName,
-//   middleName,
-//   lastName,
-//   phone: transfer.phone,
-//   diagnosis: transfer.diagnosis,
-//   reason: transfer.reason,
-//   appointmentDate: transfer.date,
-//   appointmentTime: transfer.time,
-//   doctorName: transfer.doctorName,
-// });
-// const newPatientId = response.data.id;
-// localStorage.setItem('highlightOPDId', newPatientId);
-// navigate('/doctordashboard/add');
-// // ...existing code...
-
-//         } catch (e) {
-//           toast.dismiss(transferToast);
-//           toast.error('Failed to transfer appointment.');
-//         }
-//       }, 10000);
-//     } catch {
-//       toast.error('Failed to accept appointment');
-//     }
-//   };
 
 const handleAccept = async id => {
   const appt = appointments.find(a => a.id === id);
@@ -161,18 +130,25 @@ const handleAccept = async id => {
         const { firstName, middleName, lastName } = splitName(transfer.name);
 
         // --- POST to AddPatient endpoint ---
-        const response = await axios.post('https://684be316ed2578be881cdb55.mockapi.io/addpatient', {
+        const response = await axios.post('https://681f2dfb72e59f922ef5774c.mockapi.io/addpatient', {
           name: transfer.name,
           firstName,
           middleName,
           lastName,
           phone: transfer.phone,
-          diagnosis: transfer.diagnosis,
-          reason: transfer.reason,
           email: transfer.email,
+          doctorName: transfer.doctorName,
+          reason: transfer.reason || '',
+          diagnosis: transfer.diagnosis || '',
           appointmentDate: transfer.date,
           appointmentTime: transfer.time,
-          doctorName: transfer.doctorName,
+          type: 'OPD',
+          isVisible: true,
+          consultationStarted: false,
+          consultationCompleted: false,
+          prescription: '',
+          advice: '',
+          movedDate: new Date().toISOString()
         });
 
         const newPatientId = response.data.id;
@@ -188,12 +164,11 @@ const handleAccept = async id => {
         toast.dismiss(transferToast);
         toast.error('Failed to transfer appointment.');
       }
-    }, 10000);
+    }, 1000);
   } catch {
     toast.error('Failed to accept appointment');
   }
 };
-
   const reschedulingAppointment = rescheduleId
     ? appointments.find(a => a.id === rescheduleId)
     : null;
@@ -252,7 +227,18 @@ const handleAccept = async id => {
 
   return (
     <div>
-      <Toaster />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <div className='p-6'>
         <h4 className="h4-heading mb-6">Appointments</h4>
         <div className="flex gap-3 mb-4">{['pending', 'confirmed', 'rejected'].map(t => <button key={t} onClick={() => setTab(t)} className={tab === t ? 'btn btn-primary' : 'btn btn-secondary'}>{t[0].toUpperCase() + t.slice(1)}</button>)}</div>
@@ -271,12 +257,12 @@ const handleAccept = async id => {
           </table>
         </div>
         {!hidePagination && (
-          <div className="flex justify-end items-center mt-4">
-            <div className="flex items-center gap-2">
-              <button disabled={state.currentPage === 1} onClick={() => setState(p => ({ ...p, currentPage: p.currentPage - 1 }))} className="edit-btn">Previous</button>
-              <span>Page {state.currentPage} of {totalPages || 1}</span>
-              <button disabled={state.currentPage === totalPages || totalPages === 0} onClick={() => setState(p => ({ ...p, currentPage: p.currentPage + 1 }))} className="edit-btn">Next</button>
-            </div>
+          <div className="w-full  flex justify-end mt-4">
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={(newPage) => setPage(newPage)}
+            />
           </div>
         )}
       </div>
@@ -307,5 +293,4 @@ const handleAccept = async id => {
 };
 
 export default DoctorAppointments;
-
 

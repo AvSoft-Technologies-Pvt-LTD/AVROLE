@@ -3,7 +3,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 const API_URL = 'https://6825b85c0f0188d7e72e26eb.mockapi.io/departments';
 
 function Department() {
-  const [departments, setDepartments] = useState([]);
+  const [departments, setDepartments] = useState([]);  
   const [formOpen, setFormOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({ id: '', name: '', head: '', infra: '', staff: '', generalBeds: '', privateBeds: '', icuBeds: '' });

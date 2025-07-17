@@ -1,53 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { verifyOTP, sendOTP } from '../context-api/authSlice';
-import { useNavigate } from 'react-router-dom';
-
-const Verification = () => {
-  const dispatch = useDispatch(), navigate = useNavigate();
-  const { isOTPSent, isVerified, loading, error, user } = useSelector(state => state.auth);
-  const [enteredOtp, setEnteredOtp] = useState(['', '', '', '', '', '']), [resendTimer, setResendTimer] = useState(30);
-
-  useEffect(() => { if (!isOTPSent) dispatch(sendOTP(user.phone)); }, [dispatch, isOTPSent, user.phone]);
-  useEffect(() => { if (isVerified) navigate('/healthcard'); }, [isVerified, navigate]);
-  useEffect(() => { if (resendTimer > 0) { const timer = setInterval(() => setResendTimer(prev => prev - 1), 1000); return () => clearInterval(timer); } }, [resendTimer]);
-
-  const handleOtpChange = (e, i) => {
-    const v = e.target.value, updated = [...enteredOtp]; updated[i] = v; setEnteredOtp(updated);
-    if (v && i < 5) document.getElementById(`otp-input-${i + 1}`)?.focus();
-  };
-  const handleVerifyOTP = () => {
-    const otpValue = enteredOtp.join('');
-    otpValue.length === 6 ? dispatch(verifyOTP({ phone: user.phone, otp: otpValue, type: 'register' })) : alert('Please enter a 6-digit OTP');
-  };
-  const handleResend = () => { dispatch(sendOTP(user.phone)); setResendTimer(30); };
-
+import React, { useState, useRef, useEffect } from "react"; import { useNavigate } from "react-router-dom";
+const OtpVerification = () => {
+  const navigate = useNavigate(); const [otp, setOtp] = useState(new Array(6).fill("")); const inputRefs = useRef([]); const [loading, setLoading] = useState(false); const [resendTimer, setResendTimer] = useState(60);
+  useEffect(() => { if (resendTimer > 0) { const t = setTimeout(() => setResendTimer(resendTimer - 1), 1000); return () => clearTimeout(t); } }, [resendTimer]);
+  const handleChange = (el, i) => { const val = el.value.replace(/\D/, ""); if (!val) return; const newOtp = [...otp]; newOtp[i] = val; setOtp(newOtp); if (i < 5) inputRefs.current[i + 1].focus(); };
+  const handleBackspace = (e, i) => { if (e.key === "Backspace") { const newOtp = [...otp]; newOtp[i] = ""; setOtp(newOtp); if (i > 0) inputRefs.current[i - 1].focus(); } };
+  const handleVerify = async () => { const enteredOtp = otp.join(""); if (enteredOtp.length === 6) { setLoading(true); try { navigate("/healthcard"); } catch { alert("OTP Verification Failed"); } finally { setLoading(false); } } else alert("Please enter a 6-digit OTP"); };
+  const handleResend = () => { setResendTimer(60); alert("OTP has been resent!"); };
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#f5f9fc]">
-      <div className="bg-white shadow-lg w-full max-w-4xl p-6 flex items-center border border-gray-200">
+    <div  className=" flex items-center justify-center min-h-screen bg-[#F5F9FC]">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-4xl flex items-center p-8 border border-gray-200">
         <div className="flex-1 space-y-6">
-          <h2 className="text-2xl font-bold text-[var(--primary-color)] text-center">OTP Verification</h2>
-          <p className="text-sm text-gray-600 text-center">Enter the 6-digit OTP sent to your registered number</p>
-          <div className="flex justify-between gap-2 mb-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <input key={i} type="text" maxLength="1" value={enteredOtp[i] || ''} onChange={e => handleOtpChange(e, i)}
-                onKeyDown={e => { if (e.key === 'Backspace' && !enteredOtp[i]) { const prev = i - 1; if (prev >= 0) document.getElementById(`otp-input-${prev}`)?.focus(); } }}
-                id={`otp-input-${i}`} className="w-12 h-12 text-center border border-gray-300 rounded-md text-xl font-semibold text-[var(--primary-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
-            ))}
-          </div>
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          <button onClick={handleVerifyOTP} className="w-full bg-[var(--accent-color)] hover:bg-[#00bd7c] transition-colors text-white font-semibold py-2 rounded-lg shadow-md mb-3" disabled={loading}>{loading ? 'Verifying...' : 'Submit & Proceed'}</button>
+          <h2 className="h2-heading text-center">OTP Verification</h2>
+          <p className="paragraph text-center">Enter the 6-digit OTP sent to your registered number</p>
+          <div className="flex justify-between gap-2 mb-6">{otp.map((d, i) => (
+            <input key={i} ref={el => (inputRefs.current[i] = el)} type="text" maxLength="1" value={d} onChange={e => handleChange(e.target, i)} onKeyDown={e => handleBackspace(e, i)} className="input-field text-center text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] w-12 h-12" />
+          ))}</div>
+          <button onClick={handleVerify} disabled={loading} className={`btn btn-primary w-full${loading ? " btn-disabled" : ""}`}>
+            {loading ? "Verifying..." : "Verify & Proceed"}
+          </button>
           <div className="text-center text-sm text-gray-600">
             {resendTimer > 0 ? <p>Resend OTP in {resendTimer} seconds</p> :
-              <button onClick={handleResend} className="text-[var(--accent-color)] hover:underline font-medium" disabled={loading}>Resend OTP</button>}
+              <button onClick={handleResend} className="text-[var(--accent-color)] hover:underline font-medium">Resend OTP</button>}
           </div>
         </div>
-        <div className="w-full max-w-xs ml-8">
-          <img src="https://img.freepik.com/premium-vector/doctor-examines-report-disease-medical-checkup-annual-doctor-health-test-appointment-tiny-person-concept-preventive-examination-patient-consults-hospital-specialist-vector-illustration_419010-581.jpg" alt="Login illustration" className="w-full h-auto rounded-xl animate-slideIn" />
+        <div className="flex-1 hidden lg:block">
+          <img src="https://img.freepik.com/premium-vector/doctor-examines-report-disease-medical-checkup-annual-doctor-health-test-appointment-tiny-person-concept-preventive-examination-patient-consults-hospital-specialist-vector-illustration_419010-581.jpg?ga=GA1.1.587832214.1744916073&semt=ais_hybrid&w=740" alt="Login illustration" className="w-full h-auto rounded-blob" />
         </div>
       </div>
     </div>
   );
 };
-
-export default Verification;
+export default OtpVerification;

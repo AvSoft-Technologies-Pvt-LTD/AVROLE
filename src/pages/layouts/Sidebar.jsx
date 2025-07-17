@@ -5,7 +5,7 @@ import {
   RiShieldCheckFill, RiAlarmWarningFill, RiSettings3Fill, RiLogoutBoxRFill, RiArrowLeftSLine,
   RiArrowRightSLine, RiTestTubeFill, RiMicroscopeFill, RiCapsuleFill, RiFileList3Fill,
   RiHospitalFill, RiUserSettingsFill, RiStethoscopeFill, RiUser3Fill, RiArrowDownSLine,
-  RiArrowUpSLine
+  RiArrowUpSLine, 
 } from "react-icons/ri";
 
 const Sidebar = () => {
@@ -74,16 +74,21 @@ const Sidebar = () => {
       { icon: RiTestTubeFill, label: "Billing", path: "/labdashboard/billing" },
       { icon: RiUserSettingsFill, label: "Settings", path: "/labdashboard/settings" }
     ],
-    hospital: [
+ hospital: [
       { icon: RiDashboardFill, label: "Dashboard", path: "/hospitaldashboard" },
       { icon: RiUser3Fill, label: "Doctor and Staff", path: "/hospitaldashboard/doctors-staff-management" },
       { icon: RiCalendarCheckFill, label: "Departments", path: "/hospitaldashboard/departments" },
-      { icon: RiCalendarCheckFill, label: "Patient Management", path: "/hospitaldashboard/patient-management" },
+      { icon: RiStethoscopeFill, label: "OPD", path: "/hospitaldashboard/opd-list" },
+{ icon: RiHospitalFill, label: "IPD", path: "/hospitaldashboard/Ipd" },
+
       { icon: RiTestTubeFill, label: "Lab/Scans", path: "/hospitaldashboard/labs" },
       { icon: RiShoppingBagFill, label: "Pharmacy", path: "/hospitaldashboard/pharmacy" },
       { icon: RiShieldCheckFill, label: "Billing & Payments", path: "/hospitaldashboard/billing-payments" },
+      { icon: RiAlarmWarningFill, label: "Emergency", path: "/hospitaldashboard/emergency" },
       { icon: RiUserSettingsFill, label: "Settings", path: "/hospitaldashboard/settings" }
     ],
+
+
     superadmin: [
       { icon: RiDashboardFill, label: "Dashboard", path: "/superadmindashboard" },
       { icon: RiUser3Fill, label: "Manage Patients", path: "/superadmindashboard/managepatients" },

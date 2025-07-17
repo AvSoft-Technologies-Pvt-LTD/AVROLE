@@ -1,172 +1,206 @@
 import React, { useState, useRef } from "react";
-import { Camera, Save } from "lucide-react";
+import { Camera } from "lucide-react";
+import avtarImg from '../../../../assets/avtar.jpg';
 
-const formFields = {
-  Personal: ["firstName", "lastName", "phone", "email", "dob"],
-  Professional: ["qualification", "specialization", "experience", "licenseNo"],
-  Address: ["address", "city", "state", "pincode"],
-  Security: ["currentPassword", "newPassword", "confirmPassword"],
-};
+const tabOptions = ["Basic Information", "Professional Details", "Address", "Change Password"];
 
-const mockUserData = {
+const mockData = {
   firstName: "Sheetal",
   lastName: "Shelke",
-  phone: "9876543210",
-  email: "john@example.com",
-  dob: "1990-01-01",
+  email: "sheetal@example.com",
+  username: "dr.sheetal",
+  roles: ["Doctor"],
+  accountStatus: "active",
+  storageUsed: 181.13,
   qualification: "MBBS",
   specialization: "Neurology",
   experience: "10",
-  licenseNo: "12345-67890",
-  address: "Dharwad, Karnataka",
+  licenseNo: "ABC-1234",
+  address: "123 Main Street",
   city: "Dharwad",
-  state: "Kanataka",
-  pincode: "558001",
+  state: "Karnataka",
+  pincode: "580001",
 };
 
 const DoctorProfileSettings = () => {
-  const [activeTab, setActiveTab] = useState("Personal");
-  const [formData, setFormData] = useState(mockUserData);
+  const [activeTab, setActiveTab] = useState("Basic Information");
+  const [formData, setFormData] = useState(mockData);
   const [avatar, setAvatar] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleInputChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-    setHasUnsavedChanges(true);
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setAvatar(URL.createObjectURL(file));
-      setHasUnsavedChanges(true);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      setHasUnsavedChanges(false);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
-    }, 1000);
-  };
-
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-[var(--primary-color)]">Doctor Profile Settings</h2>
-      {/* Avatar Upload */}
-      <div className="relative group w-fit mx-auto mb-6">
-        <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-[var(--color-surface)] shadow-lg transition duration-300 transform group-hover:scale-105">
-          <img
-            src={avatar || "https://via.placeholder.com/150"}
-            alt="Avatar"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        {isEditMode && (
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 w-10 h-10 bg-[var(--primary-color)] rounded-full flex items-center justify-center cursor-pointer shadow-md hover:scale-110 transition-all duration-300"
-          >
-            <Camera size={18} className="text-[var(--color-surface)]" />
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-          </div>
-        )}
-      </div>
-      {/* Tabs */}
-      <div className="relative flex justify-center mb-6 gap-3 flex-wrap">
-        {Object.keys(formFields).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`relative px-5 py-2 rounded-full font-semibold tracking-wide transition-all duration-300 ease-in-out overflow-hidden ${
-              activeTab === tab
-                ? "bg-[var(--primary-color)] text-white shadow-md scale-105 animate-tab-pop"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105"
-            }`}
-          >
-            <span className="relative z-10">{tab}</span>
-            {activeTab === tab && (
-              <span className="absolute inset-0 bg-[var(--primary-color)] opacity-10 rounded-full blur-md"></span>
-            )}
-          </button>
-        ))}
-      </div>
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit}
-        key={activeTab}
-        className="space-y-4 transition-all duration-500 animate-fade-in-up"
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {formFields[activeTab].map((field, index) => (
-            <div
-              key={field}
-              style={{ animationDelay: `${index * 0.05}s` }}
-              className="animate-fade-in-up"
-            >
-              <div className="floating-input relative" data-placeholder={field.replace(/([A-Z])/g, " $1")}>
-                <input
-                  type={field.toLowerCase().includes("password") ? "password" : "text"}
-                  name={field}
-                  value={formData[field] || ""}
-                  onChange={handleInputChange}
-                  disabled={!isEditMode}
-                  className="input-field peer"
-                  placeholder=" "
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-end gap-3 mt-6">
+    <div className="max-w-5xl mx-auto p-6">
+      {/* Header with Edit Button */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="h2-heading">
+          Profile: {formData.firstName} {formData.lastName}
+        </h2>
+        {activeTab !== "Change Password" && (
           <button
             type="button"
             onClick={() => setIsEditMode(!isEditMode)}
-            className={`px-6 py-2 rounded-xl text-sm border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--primary-color)] hover:text-white transition-transform duration-300 ${
-              isEditMode ? "hover:scale-105" : "hover:scale-110"
-            }`}
+            className={`btn btn-secondary ${isEditMode ? '' : ''}`}
           >
             {isEditMode ? "Cancel" : "Edit"}
           </button>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-6 mb-6 border-b border-gray-200">
+        {tabOptions.map((tab) => (
           <button
-            type="submit"
-            disabled={!hasUnsavedChanges || isSaving}
-            className={`px-6 py-2.5 rounded-xl flex items-center gap-2 transition duration-300 transform ${
-              !hasUnsavedChanges || isSaving
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-[var(--primary-color)] text-white hover:-translate-y-1 hover:shadow-xl pulse"
-            }`}
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`pb-3 px-2 text-sm font-semibold bg-transparent border-none outline-none border-b-4 transition-all duration-200
+              ${activeTab === tab
+                ? 'border-[var(--accent-color)] text-[var(--accent-color)]'
+                : 'border-transparent text-gray-500 hover:text-[var(--primary-color)] hover:border-[var(--accent-color)]'}
+            `}
+            style={{ background: 'none' }}
           >
-            {isSaving ? (
-              <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-            ) : (
-              <Save size={18} />
-            )}
-            <span>{isSaving ? "Saving..." : "Save Changes"}</span>
+            {tab}
           </button>
+        ))}
+      </div>
+
+      {/* Basic Information */}
+      {activeTab === "Basic Information" && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white rounded-xl p-6 shadow-lg animate-slideIn">
+          <div className="md:col-span-2 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {(
+                [
+                  { label: "First Name", name: "firstName" },
+                  { label: "Last Name", name: "lastName" },
+                  { label: "Email Address", name: "email", type: "email" },
+                  { label: "Username", name: "username" }
+                ]
+              ).map((field) => (
+                <Input key={field.name} label={field.label} name={field.name} value={formData[field.name]} onChange={handleInputChange} disabled={!isEditMode} type={field.type || "text"} />
+              ))}
+            </div>
+
+            <div className="mt-2 flex gap-6 items-center">
+              <label className="block text-sm font-medium">Roles:</label>
+              {(["Admin", "User", "Doctor"]).map((role) => (
+                <label key={role} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={formData.roles.includes(role)} readOnly className="accent-[var(--primary-color)]" disabled />
+                  {role}
+                </label>
+              ))}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1 mt-4">Account Status</label>
+              <select name="accountStatus" value={formData.accountStatus} onChange={handleInputChange} disabled={!isEditMode} className="input-field">
+                {(["active", "inactive"]).map((status) => (
+                  <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mt-6 text-sm text-gray-600">
+              <strong>Storage:</strong> {formData.storageUsed}MB of 1900MB used
+            </div>
+          </div>
+
+          {/* Avatar */}
+          <div className="flex flex-col items-center justify-center gap-4">
+            <div className="w-28 h-28 rounded-full overflow-hidden ring-2 ring-[var(--primary-color)]">
+              <img src={avatar || avtarImg} alt="Profile" className="w-full h-full object-cover" />
+            </div>
+            {isEditMode && (
+              <>
+                <button onClick={() => fileInputRef.current?.click()} className="btn btn-primary text-sm px-4 py-2">Upload New Photo</button>
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+              </>
+            )}
+          </div>
         </div>
-      </form>
-      {/* Toast */}
-      {showToast && (
-        <div className="fixed top-4 right-4 bg-[var(--primary-color)] text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 animate-toast z-20">
-          <Save size={18} />
-          <span>Profile updated successfully!</span>
+      )}
+
+      {/* Professional Details */}
+      {activeTab === "Professional Details" && (
+        <div className="bg-white rounded-xl p-6 shadow-lg space-y-4 animate-slideIn">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {(
+              [
+                { label: "Qualification", name: "qualification" },
+                { label: "Specialization", name: "specialization" },
+                { label: "Experience (in years)", name: "experience" },
+                { label: "License No", name: "licenseNo" }
+              ]
+            ).map((field) => (
+              <Input key={field.name} label={field.label} name={field.name} value={formData[field.name]} onChange={handleInputChange} disabled={!isEditMode} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Address */}
+      {activeTab === "Address" && (
+        <div className="bg-white rounded-xl p-6 shadow-lg space-y-4 animate-slideIn">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {(
+              [
+                { label: "Address", name: "address" },
+                { label: "City", name: "city" },
+                { label: "State", name: "state" },
+                { label: "Pincode", name: "pincode" }
+              ]
+            ).map((field) => (
+              <Input key={field.name} label={field.label} name={field.name} value={formData[field.name]} onChange={handleInputChange} disabled={!isEditMode} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Change Password */}
+      {activeTab === "Change Password" && (
+        <div className="bg-white rounded-xl p-6 shadow-lg space-y-4 max-w-xl animate-slideIn">
+          {(
+            [
+              { label: "Current Password", name: "currentPassword", type: "password" },
+              { label: "New Password", name: "newPassword", type: "password" },
+              { label: "Confirm Password", name: "confirmPassword", type: "password" }
+            ]
+          ).map((field) => (
+            <Input key={field.name} label={field.label} name={field.name} type={field.type} value={formData[field.name] || ""} onChange={handleInputChange} />
+          ))}
         </div>
       )}
     </div>
   );
 };
+
+const Input = ({ label, name, value, onChange, disabled = false, type = "text" }) => (
+  <div className="relative floating-input" data-placeholder={label}>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      className={`input-field peer ${disabled ? "bg-gray-100" : "bg-white"}`}
+      placeholder=" "
+      autoComplete="off"
+    />
+  </div>
+);
 
 export default DoctorProfileSettings;
