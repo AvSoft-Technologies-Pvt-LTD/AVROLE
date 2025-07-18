@@ -48,7 +48,7 @@ const settingsData = [
   { label: "Organization Info Settings", color: "bg-amber-400", component: "OrganizationInfoSettings", path: "organization-info" },
   { label: "Telephone Directory", color: "bg-orange-300", component: "TelephoneDirectory", path: "telephone-directory" },
   { label: "Accounts Auto Transaction Settings", color: "bg-rose-200", component: "AccountsAutoTransactionSettings", path: "accounts-settings" },
-  { label: "Favourite Menu Settings", color: "bg-pink-300", component: "FavouriteMenuSettings", path: "favourite-menu" },
+  // { label: "Favourite Menu Settings", color: "bg-pink-300", component: "FavouriteMenuSettings", path: "favourite-menu" },
 ];
 const componentMap = {
   LabSettings,
