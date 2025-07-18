@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DynamicTable from "./microcomponents/DynamicTable";
 import ReusableModal from "./microcomponents/Modal";
-import TemplateModal from "../pages/layouts/menu/HospitalDashboard/TemplateModal";
+import TestReportTemplate from "./microcomponents/ReportTemplate";
 import { Printer, FlaskConical, TestTube, ClipboardList, BarChart } from "lucide-react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
@@ -437,7 +437,7 @@ const LabModule = () => {
                 </button>
               </div>
             </div>
-            <div ref={printRef}><TemplateModal report={reportToPrint} /></div>
+            <div ref={printRef}><TestReportTemplate report={reportToPrint} /></div>
           </div>
         </div>
       )}

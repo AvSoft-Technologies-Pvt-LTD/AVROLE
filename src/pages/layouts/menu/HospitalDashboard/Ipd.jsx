@@ -649,7 +649,7 @@ export default function Ipd() {
                         }
                         className="edit-btn"
                       >
-                        Add Record
+                        Visit Pad
                       </button>
                       <TeleConsultFlow phone={row.phone} />
 <button

@@ -40,7 +40,7 @@ const settingsData = [
   { label: "Diagnosis Category", color: "bg-indigo-700", component: "DiagnosisCategory", path: "diagnosis-category" },
   { label: "History Taking Setup", color: "bg-slate-600", component: "HistoryTakingSetup", path: "history-taking" },
   { label: "Medicine Template List", color: "bg-sky-400", component: "MedicineTemplateList", path: "medicine-template" },
-  { label: "Treatment Advice Template List", color: "bg-cyan-800", component: "TreatmentAdviceTemplateList", path: "treatment-advice" },
+  { label: "Treatment Advice  List", color: "bg-cyan-800", component: "TreatmentAdviceTemplateList", path: "treatment-advice" },
   { label: "Bed/Room Category List", color: "bg-teal-500", component: "BedRoomCategoryList", path: "bedroom-category" },
   { label: "Bed/Room List", color: "bg-emerald-300", component: "BedRoomList", path: "bedroom-list" },
   { label: "Organization Logo Setting", color: "bg-lime-600", component: "OrganizationLogoSetting", path: "organization-logo" },

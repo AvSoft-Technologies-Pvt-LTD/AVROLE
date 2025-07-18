@@ -90,9 +90,7 @@ const OpdDashboard = () => {
           <p><strong>Admission Date:</strong> {patient.admissionDate}</p>
           <p><strong>Bed:</strong> {patient.bed}</p>
           <p><strong>Discharge Date:</strong> {patient.dischargeDate}</p>
-          <div className="mt-3 w-28 h-10 bg-gray-200 text-center text-xs font-semibold text-gray-600 rounded flex items-center justify-center shadow-inner">
-            Barcode
-          </div>
+          
         </div>
       </div>
 
@@ -112,7 +110,7 @@ const OpdDashboard = () => {
       </div>
 
       {/* Billing Buttons */}
-      <div className="mt-2 flex flex-wrap gap-2">
+      {/* <div className="mt-2 flex flex-wrap gap-2">
         {testBillingButtons.map((btn) => (
           <button
             key={btn.key}
@@ -122,7 +120,7 @@ const OpdDashboard = () => {
             {btn.label}
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* Test Billing Form */}
       {showTestForm && (

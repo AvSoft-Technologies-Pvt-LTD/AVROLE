@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import SignatureCanvas from "react-signature-canvas";
-import { Eye, X, Save,ChevronDown } from "lucide-react";
+import { Eye, X, Save, ChevronDown } from "lucide-react";
 
 
 const chunkFields = (fields, size = 3) => {
@@ -25,6 +25,7 @@ const ReusableModal = ({
     if (fields.length && ["add", "edit"].includes(mode)) {
       const initial = {}; fields.forEach(f => initial[f.name] = data?.[f.name] ?? "");
       setFormValues(initial); setFormErrors({});
+      setDoctorSignature(data?.doctorSignature || "");
     }
   }, [isOpen, fields, mode, data]);
   const handleSignatureUpload = e => {
@@ -35,6 +36,16 @@ const ReusableModal = ({
       reader.readAsDataURL(file);
     }
   };
+  const handleSaveDrawnSignature = () => {
+    if (!signaturePadRef.current?.isEmpty()) {
+      const drawnSignature = signaturePadRef.current.getCanvas().toDataURL("image/png");
+      setDoctorSignature(drawnSignature);
+      toast.success("Signature saved!");
+    } else {
+      toast.warning("Signature pad is empty.");
+    }
+  };
+
 
   const handleClearSignature = () => {
     signaturePadRef.current?.clear();
@@ -46,11 +57,11 @@ const ReusableModal = ({
     setFormErrors(p => ({ ...p, [name]: undefined }));
   };
 
- const handleSave = async () => {
-  await onSave({ ...formValues, doctorSignature }); // wait for server
-  toast.success(mode === "add" ? "Record added Successfully!" : "Record updated Successfully!");
-  onClose();
-};
+  const handleSave = async () => {
+    await onSave({ ...formValues, doctorSignature }); // wait for server
+    toast.success(mode === "add" ? "Record added Successfully!" : "Record updated Successfully!");
+    onClose();
+  };
   const handleDelete = () => { onDelete(); toast.error("Record deleted Successfully!"); onClose(); };
 
   if (!isOpen) return null;
@@ -170,7 +181,10 @@ const ReusableModal = ({
                         <SignatureCanvas ref={signaturePadRef} canvasProps={{ width: 400, height: 100, className: "border border-gray-300 rounded-lg shadow-sm w-full bg-white" }} />
                       </div>
                       <div className="flex items-center gap-3">
-                        <button className="edit-btn flex items-center gap-1"><Save className="w-4 h-4" />Save</button>
+                        <button onClick={handleSaveDrawnSignature} className="edit-btn flex items-center gap-1">
+                          <Save className="w-4 h-4" />Save
+                        </button>
+
                         <button onClick={handleClearSignature} className="delete-btn flex items-center gap-1"><X className="w-4 h-4" />Clear</button>
                       </div>
                     </div>
@@ -180,8 +194,36 @@ const ReusableModal = ({
               {mode === "viewProfile" && (
                 <>
                   <div className="flex items-center rounded-xl bg-gradient-to-r from-[#01B07A] to-[#1A223F] p-5">
-                    <div className="relative mr-4 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-surface)] text-[var(--primary-color)] text-2xl font-bold uppercase shadow-inner ring-4 ring-white ring-offset-2">
-                      {viewFields.find(f => f.initialsKey) ? (data[viewFields.find(f => f.initialsKey).key] || "NA").substring(0, 2).toUpperCase() : "NA"}
+                    <div className="relative mr-4 h-20 w-20">
+                      {(() => {
+                        const imageField = viewFields.find(f => f.type === "image");
+                        const imageUrl = imageField && data[imageField.key];
+                        if (imageUrl) {
+                          return (
+                            <>
+                              <img
+                                src={imageUrl}
+                                alt="Employee"
+                                className="h-full w-full rounded-full object-cover border-4 border-white shadow"
+                              />
+                              {data.status === "Active" && (
+                                <div className="absolute bottom-1 right-1 w-3 h-3 rounded-full bg-[var(--accent-color)] animate-pulse" />
+                              )}
+                            </>
+                          );
+                        }
+                        // Get initials from available priority keys
+                        const initialsField =
+                          viewFields.find(f => f.initialsKey) ||
+                          viewFields.find(f => f.titleKey) ||
+                          viewFields.find(f => f.subTitleKey);
+                        const initials = initialsField ? (data[initialsField.key] || "NA").substring(0, 2).toUpperCase() : "NA";
+                        return (
+                          <div className="flex h-full w-full items-center justify-center rounded-full bg-[var(--color-surface)] text-[var(--primary-color)] text-2xl font-bold uppercase shadow-inner ring-4 ring-white ring-offset-2">
+                            {initials}
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div>
                       <p className="text-2xl font-semibold text-[var(--color-surface)]">{viewFields.find(f => f.titleKey) ? data[viewFields.find(f => f.titleKey).key] || "-" : "-"}</p>

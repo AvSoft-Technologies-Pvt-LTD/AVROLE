@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState,useEffect, useRef } from "react";
 import DynamicTable from "../../../../components/microcomponents/DynamicTable";
 import ReusableModal from "../../../../components/microcomponents/Modal";
-import { Plus } from "lucide-react";
+import { Plus, Printer } from "lucide-react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { FaPrint } from "react-icons/fa";
-import InvoiceTemplateModal from "../../../../components/InvoiceTemplateModal";
+import InvoiceTemplateModal from "../../../../components/InvoiceTemplateModal"; // New Template
 // --- Main OPD Tab Section ---
 const OpdTabSection = ({ patient = {} }) => {
   const [activeTab, setActiveTab] = useState("all");
@@ -49,16 +49,20 @@ const OpdTabSection = ({ patient = {} }) => {
 };
 
 export default OpdTabSection;
+const LabelList = {
+  icdCodes: {
+    A001: "Cholera due to Vibrio cholerae 01, biovar eltor",
+    A002: "Cholera due to Vibrio cholerae 01, biovar cholerae",
+    B001: "Varicella encephalitis",
+  },
+};
 
-// --- TREATMENT PANEL TAB (Discharge Tab Only) ---
 const TreatmentPanelTab = ({ patient = {} }) => {
   const [dischargeModalOpen, setDischargeModalOpen] = useState(false);
-  const [dischargeDataList, setDischargeDataList] = useState([]);
   const [dischargeDetails, setDischargeDetails] = useState(null);
   const [showReport, setShowReport] = useState(false);
   const navigate = useNavigate();
 
-  // Example surgeon options
   const surgeonOptions = [
     { value: "Dr. Jamal Khan", label: "Dr. Jamal Khan" },
     { value: "Dr. Mehta", label: "Dr. Mehta" },
@@ -67,15 +71,15 @@ const TreatmentPanelTab = ({ patient = {} }) => {
   ];
 
   const dischargeFields = [
-    { 
-      name: "icdCode", 
-      label: "ICD-10 Disease Code", 
-      type: "select", 
+    {
+      name: "icdCode",
+      label: "ICD-10 Disease Code",
+      type: "select",
       options: [
         { value: "A001", label: "A001 - Cholera due to Vibrio cholerae 01, biovar eltor" },
         { value: "A002", label: "A002 - Cholera due to Vibrio cholerae 01, biovar cholerae" },
-        { value: "B001", label: "B001 - Varicella encephalitis" }
-      ] 
+        { value: "B001", label: "B001 - Varicella encephalitis" },
+      ],
     },
     { name: "dischargeDate", label: "Discharge Date", type: "date" },
     { name: "nextFollowup", label: "Next Followup Date", type: "date" },
@@ -90,6 +94,34 @@ const TreatmentPanelTab = ({ patient = {} }) => {
     { name: "referenceBy", label: "Reference By" },
   ];
 
+  const [dischargeDataList, setDischargeDataList] = useState([
+    {
+      id: 1,
+      doctor: "Dr. Roy",
+      status: "Closed",
+      disease: (
+        <div>
+          2025-07-10<br />
+          A001 - Cholera due to Vibrio cholerae 01, biovar eltor
+        </div>
+      ),
+      details: {
+        icdCode: "A001",
+        dischargeDate: "2025-07-10",
+        nextFollowup: "2025-08-01",
+        adviceDetails: "Maintain hydration and follow hygiene protocols.",
+        testDetails: "Blood test, Stool culture",
+        treatmentDetails: "IV fluids, Antibiotics",
+        status: "Closed",
+        operationName: "Appendectomy",
+        operationDate: "2025-07-05",
+        surgeonName: "Dr. Jamal Khan",
+        refSuggestion: "Refer to Gastro specialist",
+        referenceBy: "Dr. Roy",
+      },
+    },
+  ]);
+
   const handleDischargeSave = (values) => {
     const newDischarge = {
       id: dischargeDataList.length + 1,
@@ -98,13 +130,13 @@ const TreatmentPanelTab = ({ patient = {} }) => {
       disease: (
         <div>
           {values.dischargeDate || "-"}<br />
-          {values.icdCode || "-"}
+          {values.icdCode || "-"} - {LabelList.icdCodes[values.icdCode] || "-"}
         </div>
       ),
       details: values,
     };
-    
-    setDischargeDataList(prev => [...prev, newDischarge]);
+
+    setDischargeDataList((prev) => [...prev, newDischarge]);
     setDischargeModalOpen(false);
     toast.success("Discharge record created successfully!");
   };
@@ -114,36 +146,6 @@ const TreatmentPanelTab = ({ patient = {} }) => {
   };
 
   const dischargeTableColumns = [
-    {
-      header: "Edit", 
-      accessor: "edit",
-      cell: (row, idx) => (
-        <button
-          className="text-blue-700 underline hover:text-blue-900"
-          onClick={() => {
-            setDischargeDetails(dischargeDataList[idx]?.details);
-            setShowReport(false);
-          }}
-        >
-          Edit
-        </button>
-      )
-    },
-    {
-      header: "Report", 
-      accessor: "report",
-      cell: (row, idx) => (
-        <button
-          className="text-blue-700 underline hover:text-blue-900"
-          onClick={() => {
-            setDischargeDetails(dischargeDataList[idx]?.details);
-            setShowReport(true);
-          }}
-        >
-          Report
-        </button>
-      )
-    },
     { header: "Doctor Name", accessor: "doctor" },
     { header: "Status", accessor: "status" },
     { header: "Date & ICD-10 Codes of Diseases", accessor: "disease" },
@@ -154,21 +156,22 @@ const TreatmentPanelTab = ({ patient = {} }) => {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Discharge Certificate</h3>
         <button
-          className="flex items-center gap-2 bg-[#0E1630] text-white px-4 py-2 rounded hover:bg-[#0E1630] transition"
+          className="flex items-center gap-2 bg-[#0E1630] text-white px-4 py-2 rounded hover:bg-[#1A2450] transition"
           onClick={() => setDischargeModalOpen(true)}
         >
           <Plus size={16} />
           Create Discharge
         </button>
       </div>
-      
+
       <DynamicTable
         columns={dischargeTableColumns}
         data={dischargeDataList}
         className="border border-t-0"
         hidePagination
       />
-      
+
+      {/* Add Modal */}
       <ReusableModal
         isOpen={dischargeModalOpen}
         onClose={() => setDischargeModalOpen(false)}
@@ -180,174 +183,324 @@ const TreatmentPanelTab = ({ patient = {} }) => {
         cancelLabel="Cancel"
         data={{}}
       />
-      
-      {/* Show modal for edit */}
+
+      {/* View Modal */}
       <ReusableModal
         isOpen={!!dischargeDetails && !showReport}
         onClose={() => setDischargeDetails(null)}
         mode="viewProfile"
         title="Discharge Report"
         data={dischargeDetails || {}}
-        viewFields={dischargeFields.map(f => ({ key: f.name, label: f.label }))}
+        viewFields={dischargeFields.map((f) => ({ key: f.name, label: f.label }))}
       />
-      
-      {/* Show full page report */}
+
+      {/* Full Page Report */}
       {showReport && dischargeDetails && (
-        <DischargeReport 
-          details={dischargeDetails} 
+        <DischargeReport
+          details={dischargeDetails}
           patient={patient}
-          onClose={() => { 
-            setShowReport(false); 
-            setDischargeDetails(null); 
-          }} 
+          onClose={() => {
+            setShowReport(false);
+            setDischargeDetails(null);
+          }}
         />
       )}
     </div>
   );
 };
+// const TreatmentPanelTab = ({ patient = {} }) => {
+//   const [dischargeModalOpen, setDischargeModalOpen] = useState(false);
+//   const [dischargeDetails, setDischargeDetails] = useState(null);
+//   const [showReport, setShowReport] = useState(false);
+//   const navigate = useNavigate();
 
-// --- Discharge Report Component (Full Page) ---
-const DischargeReport = ({ details, patient, onClose }) => {
-  const handlePrint = () => {
-    window.print();
-  };
+//   const surgeonOptions = [
+//     { value: "Dr. Jamal Khan", label: "Dr. Jamal Khan" },
+//     { value: "Dr. Mehta", label: "Dr. Mehta" },
+//     { value: "Dr. Roy", label: "Dr. Roy" },
+//     { value: "Dr. Pooja Singh", label: "Dr. Pooja Singh" },
+//   ];
 
-  return (
-    <div className="fixed inset-0 z-50 bg-white overflow-auto">
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="flex justify-between items-center mb-4 no-print">
-          <div className="text-center w-full font-semibold text-xl">Discharge Certificate</div>
-          <div className="flex gap-2">
-            <button 
-              onClick={handlePrint}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-            >
-              Print
-            </button>
-            <button 
-              onClick={onClose} 
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-        
-        <div className="border rounded p-6 text-sm bg-white shadow-lg">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-[#01B07A] mb-2">Hospital Management System</h1>
-            <h2 className="text-lg font-semibold">Discharge Certificate</h2>
-          </div>
-          
-          <div className="flex justify-between mb-6">
-            <div className="space-y-1">
-              <div><strong>Patient Name:</strong> {patient.patientName || "-"}</div>
-              <div><strong>Age:</strong> {patient.age || "-"}</div>
-              <div><strong>Gender:</strong> {patient.gender || "-"}</div>
-              <div><strong>Phone:</strong> {patient.phone || "-"}</div>
-              <div><strong>Address:</strong> {patient.address || "-"}</div>
-              <div><strong>Doctor/Consultant:</strong> {patient.doctor || "-"}</div>
-              <div className="text-xs text-gray-600">{patient.consultantDetails || "PEDIATRICS-MD(D),FCPS(P),Glasgow,UK,ECUSA,Professor C4"}</div>
-            </div>
-            <div className="text-right space-y-1">
-              <div><strong>Treatment ID:</strong> {patient.treatmentID || "-"}</div>
-              <div><strong>Hospital UID:</strong> {patient.hospitalUID || "-"}</div>
-              <div><strong>Admission Date:</strong> {patient.admissionDate || "-"}</div>
-              <div><strong>Bed:</strong> {patient.bed || "-"}</div>
-              <div><strong>Discharge Date:</strong> {details.dischargeDate || "-"}</div>
-              <div className="mt-4">
-                <div className="border border-black w-24 h-8 flex items-center justify-center text-xs">
-                  Barcode
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <div className="font-semibold mb-2 text-[#01B07A]">Test Details</div>
-              <div className="border p-3 min-h-[80px] bg-gray-50 rounded">
-                {details.testDetails || "No test details provided"}
-              </div>
-            </div>
-            <div>
-              <div className="font-semibold mb-2 text-[#01B07A]">Operation Details</div>
-              <div className="border p-3 min-h-[80px] bg-gray-50 rounded">
-                <div><strong>Operation name:</strong> {details.operationName || "-"}</div>
-                <div><strong>Surgeon:</strong> {details.surgeonName || "-"}</div>
-                <div><strong>Findings:</strong> {details.refSuggestion || "-"}</div>
-                <div><strong>Procedure:</strong> {details.treatmentDetails || "-"}</div>
-                <div><strong>Date:</strong> {details.operationDate || "-"}</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <div className="font-semibold mb-2 text-[#01B07A]">Previous Treatment</div>
-              <div className="border p-3 min-h-[80px] bg-gray-50 rounded">
-                {details.adviceDetails || "No previous treatment details"}
-              </div>
-            </div>
-            <div>
-              <div className="font-semibold mb-2 text-[#01B07A]">Current Treatment & Advice</div>
-              <div className="border p-3 min-h-[80px] bg-gray-50 rounded">
-                {details.treatmentDetails || "No current treatment details"}
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex flex-col md:flex-row gap-6 mb-6">
-            <div className="flex-1">
-              <div className="font-semibold mb-2 text-[#01B07A]">Doctor Information</div>
-              <div className="border p-3 min-h-[60px] bg-gray-50 rounded">
-                {details.referenceBy || "No doctor information"}
-              </div>
-            </div>
-            <div className="flex-1">
-              <div className="font-semibold mb-2 text-[#01B07A]">ICD-10 Diagnosis</div>
-              <div className="border p-3 min-h-[60px] bg-gray-50 rounded">
-                <div><strong>Code:</strong> {details.icdCode || "-"}</div>
-                {details.icdCode === "A001" && (
-                  <div className="text-sm mt-1">Cholera due to Vibrio cholerae 01, biovar eltor</div>
-                )}
-                {details.icdCode === "A002" && (
-                  <div className="text-sm mt-1">Cholera due to Vibrio cholerae 01, biovar cholerae</div>
-                )}
-                {details.icdCode === "B001" && (
-                  <div className="text-sm mt-1">Varicella encephalitis</div>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex justify-between items-center mt-8 pt-6 border-t">
-            <div>
-              <div className="text-sm text-gray-600">Next Follow-up Date:</div>
-              <div className="font-semibold">{details.nextFollowup || "Not scheduled"}</div>
-            </div>
-            <div className="text-center">
-              <div className="border-t border-black w-48 mb-2"></div>
-              <div className="text-sm">Doctor's Signature</div>
-            </div>
-          </div>
-        </div>
-      </div>
+//   const dischargeFields = [
+//     { 
+//       name: "icdCode", 
+//       label: "ICD-10 Disease Code", 
+//       type: "select", 
+//       options: [
+//         { value: "A001 ", label: "A001 - Cholera due to Vibrio cholerae 01, biovar eltor" },
+//         { value: "A002", label: "A002 - Cholera due to Vibrio cholerae 01, biovar cholerae" },
+//         { value: "B001", label: "B001 - Varicella encephalitis" }
+//       ] 
+//     },
+//     { name: "dischargeDate", label: "Discharge Date", type: "date" },
+//     { name: "nextFollowup", label: "Next Followup Date", type: "date" },
+//     { name: "adviceDetails", label: "Advice Details", type: "textarea" },
+//     { name: "testDetails", label: "Test Details", type: "textarea" },
+//     { name: "treatmentDetails", label: "Treatment Details", type: "textarea" },
+//     { name: "status", label: "Status", type: "radio", options: ["Closed", "Draft"] },
+//     { name: "operationName", label: "Operation Name" },
+//     { name: "operationDate", label: "Operation Date", type: "date" },
+//     { name: "surgeonName", label: "Surgeon Name", type: "select", options: surgeonOptions },
+//     { name: "refSuggestion", label: "Ref Suggestion" },
+//     { name: "referenceBy", label: "Reference By" },
+//   ];
+
+//   const [dischargeDataList, setDischargeDataList] = useState([
+//     {
+//       id: 1,
+//       doctor: "Dr. Roy",
+//       status: "Closed",
+//       disease: (
+//         <div>
+//           2025-07-10<br />
+//           A001 - Cholera due to Vibrio cholerae 01, biovar eltor
+//         </div>
+//       ),
+//       details: {
+//         icdCode: "A001",
+//         dischargeDate: "2025-07-10",
+//         nextFollowup: "2025-08-01",
+//         adviceDetails: "Maintain hydration and follow hygiene protocols.",
+//         testDetails: "Blood test, Stool culture",
+//         treatmentDetails: "IV fluids, Antibiotics",
+//         status: "Closed",
+//         operationName: "Appendectomy",
+//         operationDate: "2025-07-05",
+//         surgeonName: "Dr. Jamal Khan",
+//         refSuggestion: "Refer to Gastro specialist",
+//         referenceBy: "Dr. Roy"
+//       }
+//     }
+//   ]);
+
+//   const handleDischargeSave = (values) => {
+//     const newDischarge = {
+//       id: dischargeDataList.length + 1,
+//       doctor: values?.referenceBy || "-",
+//       status: values.status || "Draft",
+//       disease: (
+//         <div>
+//           {values.dischargeDate || "-"}<br />
+//           {values.icdCode || "-"}{values.icdCode || "-"}{LabelList.icdCodes[values.icdCode] || "-"}
+
+//         </div>
+//       ),
+//       details: values,
+//     };
+    
+//     setDischargeDataList(prev => [...prev, newDischarge]);
+//     setDischargeModalOpen(false);
+//     toast.success("Discharge record created successfully!");
+//   };
+
+//   const handleAddRecord = (patient) => {
+//     navigate("/hospitaldashboard/form", { state: { patient } });
+//   };
+
+//   const dischargeTableColumns = [
+//     { header: "Doctor Name", accessor: "doctor" },
+//     { header: "Status", accessor: "status" },
+//     { header: "Date & ICD-10 Codes of Diseases", accessor: "disease" },
+//   ];
+
+//   return (
+//     <div className="mb-4">
+//       <div className="flex justify-between items-center mb-4">
+//         <h3 className="text-lg font-semibold">Discharge Certificate</h3>
+//         <button
+//           className="flex items-center gap-2 bg-[#0E1630] text-white px-4 py-2 rounded hover:bg-[#0E1630] transition"
+//           onClick={() => setDischargeModalOpen(true)}
+//         >
+//           <Plus size={16} />
+//           Create Discharge
+//         </button>
+//       </div>
       
-      <style jsx>{`
-        @media print {
-          .no-print {
-            display: none !important;
-          }
-          body {
-            margin: 0;
-            padding: 0;
-          }
-        }
-      `}</style>
-    </div>
-  );
-};
+//       <DynamicTable
+//         columns={dischargeTableColumns}
+//         data={dischargeDataList}
+//         className="border border-t-0"
+//         hidePagination
+//       />
+      
+//       {/* Add Modal */}
+//       <ReusableModal
+//         isOpen={dischargeModalOpen}
+//         onClose={() => setDischargeModalOpen(false)}
+//         mode="add"
+//         title="Discharge Form"
+//         fields={dischargeFields}
+//         onSave={handleDischargeSave}
+//         saveLabel="Discharge"
+//         cancelLabel="Cancel"
+//         data={{}}
+//       />
+      
+//       {/* View Modal */}
+//       <ReusableModal
+//         isOpen={!!dischargeDetails && !showReport}
+//         onClose={() => setDischargeDetails(null)}
+//         mode="viewProfile"
+//         title="Discharge Report"
+//         data={dischargeDetails || {}}
+//         viewFields={dischargeFields.map(f => ({ key: f.name, label: f.label }))}
+//       />
+      
+//       {/* Full Page Report */}
+//       {showReport && dischargeDetails && (
+//         <DischargeReport 
+//           details={dischargeDetails} 
+//           patient={patient}
+//           onClose={() => { 
+//             setShowReport(false); 
+//             setDischargeDetails(null); 
+//           }} 
+//         />
+//       )}
+//     </div>
+//   );
+// };
+// const DischargeReport = ({ details, patient, onClose }) => {
+//   const handlePrint = () => {
+//     window.print();
+//   };
+
+//   return (
+//     <div className="fixed inset-0 z-50 bg-white overflow-auto">
+//       <div className="max-w-7xl mx-auto p-6">
+//         <div className="flex justify-between items-center mb-4 no-print">
+//           <div className="text-center w-full font-semibold text-xl">Discharge Certificate</div>
+//           <div className="flex gap-2">
+//             <button 
+//               onClick={handlePrint}
+//               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+//             >
+//               Print
+//             </button>
+//             <button 
+//               onClick={onClose} 
+//               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+//             >
+//               Close
+//             </button>
+//           </div>
+//         </div>
+        
+//         <div className="border rounded p-6 text-sm bg-white shadow-lg">
+//           <div className="text-center mb-6">
+//             <h1 className="text-2xl font-bold text-[#01B07A] mb-2">Hospital Management System</h1>
+//             <h2 className="text-lg font-semibold">Discharge Certificate</h2>
+//           </div>
+          
+//           <div className="flex justify-between mb-6">
+//             <div className="space-y-1">
+//               <div><strong>Patient Name:</strong> {patient.patientName || "-"}</div>
+//               <div><strong>Age:</strong> {patient.age || "-"}</div>
+//               <div><strong>Gender:</strong> {patient.gender || "-"}</div>
+//               <div><strong>Phone:</strong> {patient.phone || "-"}</div>
+//               <div><strong>Address:</strong> {patient.address || "-"}</div>
+//               <div><strong>Doctor/Consultant:</strong> {patient.doctor || "-"}</div>
+//               <div className="text-xs text-gray-600">{patient.consultantDetails || "PEDIATRICS-MD(D),FCPS(P),Glasgow,UK,ECUSA,Professor C4"}</div>
+//             </div>
+//             <div className="text-right space-y-1">
+//               <div><strong>Treatment ID:</strong> {patient.treatmentID || "-"}</div>
+//               <div><strong>Hospital UID:</strong> {patient.hospitalUID || "-"}</div>
+//               <div><strong>Admission Date:</strong> {patient.admissionDate || "-"}</div>
+//               <div><strong>Bed:</strong> {patient.bed || "-"}</div>
+//               <div><strong>Discharge Date:</strong> {details.dischargeDate || "-"}</div>
+//               <div className="mt-4">
+//                 <div className="border border-black w-24 h-8 flex items-center justify-center text-xs">
+//                   Barcode
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+          
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+//             <div>
+//               <div className="font-semibold mb-2 text-[#01B07A]">Test Details</div>
+//               <div className="border p-3 min-h-[80px] bg-gray-50 rounded">
+//                 {details.testDetails || "No test details provided"}
+//               </div>
+//             </div>
+//             <div>
+//               <div className="font-semibold mb-2 text-[#01B07A]">Operation Details</div>
+//               <div className="border p-3 min-h-[80px] bg-gray-50 rounded">
+//                 <div><strong>Operation name:</strong> {details.operationName || "-"}</div>
+//                 <div><strong>Surgeon:</strong> {details.surgeonName || "-"}</div>
+//                 <div><strong>Findings:</strong> {details.refSuggestion || "-"}</div>
+//                 <div><strong>Procedure:</strong> {details.treatmentDetails || "-"}</div>
+//                 <div><strong>Date:</strong> {details.operationDate || "-"}</div>
+//               </div>
+//             </div>
+//           </div>
+          
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+//             <div>
+//               <div className="font-semibold mb-2 text-[#01B07A]">Previous Treatment</div>
+//               <div className="border p-3 min-h-[80px] bg-gray-50 rounded">
+//                 {details.adviceDetails || "No previous treatment details"}
+//               </div>
+//             </div>
+//             <div>
+//               <div className="font-semibold mb-2 text-[#01B07A]">Current Treatment & Advice</div>
+//               <div className="border p-3 min-h-[80px] bg-gray-50 rounded">
+//                 {details.treatmentDetails || "No current treatment details"}
+//               </div>
+//             </div>
+//           </div>
+          
+//           <div className="flex flex-col md:flex-row gap-6 mb-6">
+//             <div className="flex-1">
+//               <div className="font-semibold mb-2 text-[#01B07A]">Doctor Information</div>
+//               <div className="border p-3 min-h-[60px] bg-gray-50 rounded">
+//                 {details.referenceBy || "No doctor information"}
+//               </div>
+//             </div>
+//             <div className="flex-1">
+//               <div className="font-semibold mb-2 text-[#01B07A]">ICD-10 Diagnosis</div>
+//               <div className="border p-3 min-h-[60px] bg-gray-50 rounded">
+//                 <div><strong>Code:</strong> {details.icdCode || "-"}</div>
+//                 {details.icdCode === "A001" && (
+//                   <div className="text-sm mt-1">Cholera due to Vibrio cholerae 01, biovar eltor</div>
+//                 )}
+//                 {details.icdCode === "A002" && (
+//                   <div className="text-sm mt-1">Cholera due to Vibrio cholerae 01, biovar cholerae</div>
+//                 )}
+//                 {details.icdCode === "B001" && (
+//                   <div className="text-sm mt-1">Varicella encephalitis</div>
+//                 )}
+//               </div>
+//             </div>
+//           </div>
+          
+//           <div className="flex justify-between items-center mt-8 pt-6 border-t">
+//             <div>
+//               <div className="text-sm text-gray-600">Next Follow-up Date:</div>
+//               <div className="font-semibold">{details.nextFollowup || "Not scheduled"}</div>
+//             </div>
+//             <div className="text-center">
+//               <div className="border-t border-black w-48 mb-2"></div>
+//               <div className="text-sm">Doctor's Signature</div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+      
+//       <style jsx>{`
+//         @media print {
+//           .no-print {
+//             display: none !important;
+//           }
+//           body {
+//             margin: 0;
+//             padding: 0;
+//           }
+//         }
+//       `}</style>
+//     </div>
+//   );
+// };
 
 // --- ALL PATIENTS TABLE ---
 const AllPatientsTable = ({ patient = {} }) => {
@@ -754,17 +907,8 @@ const BedRoomTable = ({ patient = {} }) => {
       endDate: "2025-07-20",
       bookingType: "General",
       bookStatus: "Occupied",
-    },
-    {
-      id: 2,
-      link: "CP-000000046 - Sarah Ahmed",
-      bedNo: "B2",
-      bedCategory: "Standard",
-      bookingDate: "2025-07-15",
-      endDate: "2025-07-22",
-      bookingType: "Package",
-      bookStatus: "Reserved",
-    },
+    }
+    
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -849,12 +993,7 @@ const BedRoomTable = ({ patient = {} }) => {
     <>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Bed/Room Information</h2>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#01B07A] text-white rounded hover:bg-[#004f3d] transition"
-        >
-          <Plus size={16} /> Add Bed Booking
-        </button>
+        
       </div>
       
       <DynamicTable 

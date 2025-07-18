@@ -10,9 +10,6 @@ import SeniorNurse from "../../../../assets/SeniorNurse.jpg";
 import labtech from "../../../../assets/labTech.jpg";
 import adminimg from "../../../../assets/adminimg.jpg";
       
-
-
-
 // Add combined filter options for EmployeeList
 const employeeFilters = [
   {
@@ -29,7 +26,6 @@ const employeeFilters = [
 const EmployeeList = () => {
 const [employees, setEmployees] = useState([
  
-
   {
     id: 3,
     empId: "001",
@@ -87,7 +83,7 @@ const [employees, setEmployees] = useState([
   {
     id: 6,
     empId: "004",
-    name: "Manoj Desai",
+    name: "Rakesh Ballari",
     phone: "01730000004",
     email: "manoj.pharma@hospital.com",
     department: "Pharmacy",
@@ -434,20 +430,22 @@ const handleSave = (formData) => {
         onSave={handleSave}
         saveLabel={modalState.mode === "add" ? "Create" : "Update"}
         // Add viewFields for viewProfile mode
-        viewFields={[
-          { key: "empId", label: "Employee ID" },
-          { key: "name", label: "Employee Name", titleKey: true, subtitleKey :true,initialsKey: true },
-          { key: "designation", label: "Designation" },
-          { key: "department", label: "Department" },
-          { key: "phone", label: "Phone" },
-          { key: "email", label: "Email" },
-          { key: "dob", label: "Date of Birth" },
-          { key: "hireDate", label: "Hire Date" },
-          { key: "nationalId", label: "National ID" },
-          { key: "manager", label: "Manager" },
-          { key: "remarks", label: "Remarks" },
-          { key: "status", label: "Status" },
-        ]}
+       viewFields={[
+  { key: "empId", label: "Employee ID" },
+  { key: "name", label: "Employee Name", titleKey: true },
+  { key: "designation", label: "Designation" ,subtitleKey:true},
+  { key: "department", label: "Department" },
+  { key: "phone", label: "Phone" },
+  { key: "email", label: "Email" },
+  { key: "dob", label: "Date of Birth" },
+  { key: "hireDate", label: "Hire Date" },
+  { key: "nationalId", label: "National ID" },
+  { key: "manager", label: "Manager" },
+  { key: "remarks", label: "Remarks" },
+  { key: "status", label: "Status" },
+  { key: "picture", label: "Photo", type: "image" },  // ✅ added
+]}
+
       />
 
       {showImagePreview && previewImageUrl && (

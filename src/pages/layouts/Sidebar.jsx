@@ -76,13 +76,13 @@ const Sidebar = () => {
     ],
  hospital: [
       { icon: RiDashboardFill, label: "Dashboard", path: "/hospitaldashboard" },
-      { icon: RiUser3Fill, label: "Doctor and Staff", path: "/hospitaldashboard/doctors-staff-management" },
-      { icon: RiCalendarCheckFill, label: "Departments", path: "/hospitaldashboard/departments" },
+      // { icon: RiUser3Fill, label: "Doctor and Staff", path: "/hospitaldashboard/doctors-staff-management" },
+      // { icon: RiCalendarCheckFill, label: "Departments", path: "/hospitaldashboard/departments" },
       { icon: RiStethoscopeFill, label: "OPD", path: "/hospitaldashboard/opd-list" },
 { icon: RiHospitalFill, label: "IPD", path: "/hospitaldashboard/Ipd" },
 
-      { icon: RiTestTubeFill, label: "Lab/Scans", path: "/hospitaldashboard/labs" },
-      { icon: RiShoppingBagFill, label: "Pharmacy", path: "/hospitaldashboard/pharmacy" },
+      // { icon: RiTestTubeFill, label: "Lab/Scans", path: "/hospitaldashboard/labs" },
+      // { icon: RiShoppingBagFill, label: "Pharmacy", path: "/hospitaldashboard/pharmacy" },
       { icon: RiShieldCheckFill, label: "Billing & Payments", path: "/hospitaldashboard/billing-payments" },
       { icon: RiAlarmWarningFill, label: "Emergency", path: "/hospitaldashboard/emergency" },
       { icon: RiUserSettingsFill, label: "Settings", path: "/hospitaldashboard/settings" }

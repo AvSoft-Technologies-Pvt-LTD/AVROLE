@@ -1,3 +1,5 @@
+
+
 import React, { useState } from "react";
 import { Edit, Trash2 } from "lucide-react";
 import ReusableModal from "./microcomponents/Modal";
@@ -918,44 +920,40 @@ const PharmacyModule = () => {
         <div>
           {/* Tabs */}
 
-      <div className="flex flex-wrap items-center justify-between px-6 mb-2 border-gray-200">
-        {/* Tabs Section - LabModule style */}
-        <div className="flex flex-wrap items-center gap-6">
-          {Object.entries(tabConfig).map(([key, tab]) => {
-            // Optionally add icons if you want, else just use tab.label
-            return (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`relative flex items-center gap-2 px-2 pb-2 font-medium transition-all duration-200 border-b-2
-                  ${activeTab === key
-                    ? "text-[var(--primary-color)] border-[var(--primary-color)] border-b-2"
-                    : "text-gray-500 border-transparent hover:text-[var(--accent-color)] hover:border-[var(--accent-color)]"
-                  }`}
-                style={{ background: "none", outline: "none" }}
-              >
-                {/* If you want icons, add here: tab.icon && React.createElement(tab.icon, { size: 18 }) */}
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+      <div className="flex flex-wrap items-center justify-between px-6 mb-2 border-gray-200 gap-y-2">
+  {/* Tabs Section - Left aligned */}
+  <div className="flex flex-wrap items-center gap-6">
+    {Object.entries(tabConfig).map(([key, tab]) => (
+      <button
+        key={key}
+        onClick={() => setActiveTab(key)}
+        className={`relative flex items-center gap-2 px-2 pb-2 font-medium transition-all duration-200 border-b-2
+          ${activeTab === key
+            ? "text-[var(--primary-color)] border-[var(--primary-color)] border-b-2"
+            : "text-gray-500 border-transparent hover:text-[var(--accent-color)] hover:border-[var(--accent-color)]"
+          }`}
+        style={{ background: "none", outline: "none" }}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
 
-        {/* Actions Section */}
-        {currentTab.actions?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3 sm:mt-0">
-            {currentTab.actions.map((action) => (
-              <button
-                key={action.label}
-                onClick={action.onClick}
-                className={`text-sm font-medium px-4 py-2 rounded-md border ${action.className}`}
-              >
-                {action.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+  {/* Actions Section - Right aligned */}
+  {currentTab.actions?.length > 0 && (
+    <div className="flex flex-wrap justify-end gap-2 sm:mt-0">
+      {currentTab.actions.map((action) => (
+        <button
+          key={action.label}
+          onClick={action.onClick}
+          className={`text-sm font-medium px-2 py-2 rounded-md border ${action.className}`}
+        >
+          {action.label}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
 
 
           <div className="p-6">
