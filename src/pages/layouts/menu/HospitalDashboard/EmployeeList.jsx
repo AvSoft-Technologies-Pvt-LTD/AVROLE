@@ -3,13 +3,15 @@ import { Plus, Edit, Trash2, User, Building, Award } from "lucide-react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import ReusableModal from "../../../../components/microcomponents/Modal";
 import DynamicTable from "../../../../components/microcomponents/DynamicTable";
-import cardiodoc from "../../../../assets/cardiodoc.jpg";
-import meddoc from "../../../../assets/meddoc.jpg";
 import doctorsign1 from "../../../../assets/doctorsign1.png";
 import doctorsign2 from "../../../../assets/doctorsign2.jpg";
 import pharmasist from "../../../../assets/pharmasist.jpg";
 import SeniorNurse from "../../../../assets/SeniorNurse.jpg";
-import { labtech, adminimg } from "../../../../assets";
+import labtech from "../../../../assets/labTech.jpg";
+import adminimg from "../../../../assets/adminimg.jpg";
+      
+
+
 
 // Add combined filter options for EmployeeList
 const employeeFilters = [
@@ -26,42 +28,8 @@ const employeeFilters = [
 
 const EmployeeList = () => {
 const [employees, setEmployees] = useState([
-  // {
-  //   id: 1,
-  //   empId: "001",
-  //   name: "Dr. Jamal Khan",
-  //   phone: "01738888345",
-  //   email: "jamal56@gmail.com",
-  //   department: "Cardiology",
-  //   designation: "Professor & Doctor",
-  //   branch: "-",
-  //   remarks: "MBBS, FRCS UK",
-  //   status: "Active",
-  //   dob: "1975-05-15",
-  //   hireDate: "2020-01-10",
-  //   nationalId: "1234567890",
-  //   manager: "Dr. Smith",
-  //   picture: cardiodoc,
-  //   signature: doctorsign1
-  // },
-  // {
-  //   id: 2,
-  //   empId: "002",
-  //   name: "Dr. Kamal Khan",
-  //   phone: "01721535870",
-  //   email: "kamal@gmail.com",
-  //   department: "Medicine",
-  //   designation: "Doctor",
-  //   branch: "-",
-  //   remarks: "-",
-  //   status: "Active",
-  //   dob: "1980-03-22",
-  //   hireDate: "2021-06-15",
-  //   nationalId: "0987654321",
-  //   manager: "Dr. Ahmed",
-  //   picture: meddoc,
-  //   signature: doctorsign2
-  // },
+ 
+
   {
     id: 3,
     empId: "001",
